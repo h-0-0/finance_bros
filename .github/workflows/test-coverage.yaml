@@ -8,10 +8,6 @@ on:
 
 name: test-coverage
 
-defaults:
-  run:
-    working-directory: SVMForecast
-
 jobs:
   test-coverage:
     runs-on: macOS-latest
@@ -52,5 +48,4 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
-          working-directory: SVMForecast
           token: ${{ secrets.CODECOV_TOKEN }}

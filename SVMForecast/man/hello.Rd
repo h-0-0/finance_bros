@@ -4,11 +4,11 @@
 \alias{hello}
 \title{Hello}
 \usage{
-hello()
+hello(name)
 }
 \description{
 Prints hello world
 }
 \examples{
-hello()
+hello("User")
 }
