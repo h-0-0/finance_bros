@@ -12,6 +12,3 @@ hello_(name)
 \description{
 Prints hello world
 }
-\examples{
-hello_("User")
-}
