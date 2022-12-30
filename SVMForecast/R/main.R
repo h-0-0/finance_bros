@@ -2,7 +2,7 @@
 #'
 #' Prints hello world
 #' @examples
-#' hello()
-hello <- function() {
-  print("Hello, world!")
+#' hello("User")
+hello <- function(name) {
+  print(cat("Hello", name))
 }
