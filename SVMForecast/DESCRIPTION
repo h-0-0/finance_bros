@@ -1,11 +1,9 @@
 Package: SVMForecast
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Forecasting yahoo finance data using SVM's
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Author: person("Henry", "Bourne", email = "hwbourne@gmail.com", role = c("aut", "cre"))
+Description: Contains functions for getting price data from yahoo finance. Also contains functions for creating forecasting models for price data using SVM for regression. 
+License: MIT license
 Encoding: UTF-8
 LazyData: true
