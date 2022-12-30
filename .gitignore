@@ -39,12 +39,12 @@ vignettes/*.pdf
 .Renviron
 
 # Latex build files
-.aux
-.bbl
-.blg
-.fdb_latexmk
-.fls
-.log
-.out
-.gz
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.gz
 
