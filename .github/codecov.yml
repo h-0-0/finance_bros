@@ -1,3 +1,2 @@
-coverage:
-  paths:
-    - R/main.R:SVMForecast/R/main.R
+fixes:
+  - "R/main.R::SVMForecast/R/main.R"
