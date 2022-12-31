@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
+```{r setup, message=FALSE, warning=FALSE}
 #library(SVMForecast)
 library(tidyquant)
 library(ggplot2)
@@ -53,13 +53,13 @@ AAPL %>%
 
 
 The `prices` object is a `tibble` object with the different stocks data stacked ontop of each other. 
-```{r}
+```{r, cache = T}
 tickers = c("AAPL", "NFLX", "AMZN")
 
 prices <- tq_get(tickers)
 ```
 
-```{r}
+```{r, fig.width= 15}
 prices %>%
   ggplot(aes(x = date, y = adjusted, color = symbol)) +
   geom_line() +
