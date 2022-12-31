@@ -1,0 +1,77 @@
+---
+title: "importing-stock-data"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{importing-stock-data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+#library(SVMForecast)
+library(tidyquant)
+library(ggplot2)
+```
+
+
+# Single Stock
+
+Example importing stock data with `tidyquant`
+
+```{r}
+AAPL = tidyquant::tq_get("AAPL")
+```
+
+Get `tibble` with daily stock prices. Several ways to measure stock price for the day, it is recommended to use the adjusted stock price. The adjusted price in the tibble is the adjusted closing price, which is the price of the stock at the end of the trading day after factoring for any corporate actions. Explained further [here](https://www.investopedia.com/terms/a/adjusted_closing_price.asp#:~:text=What%20Is%20the%20Adjusted%20Closing,detailed%20analysis%20of%20past%20performance.).
+
+```{r}
+AAPL
+```
+
+## Plot
+
+```{r}
+AAPL %>%
+  ggplot(aes(x = date, y = adjusted)) +
+  geom_line() +
+  theme_classic() +
+  labs(x = 'Date',
+       y = "Adjusted Price",
+       title = "Apple price chart") +
+  scale_y_continuous(breaks = seq(0,300,10))
+```
+
+
+# Multiple Stocks
+
+
+The `prices` object is a `tibble` object with the different stocks data stacked ontop of each other. 
+```{r}
+tickers = c("AAPL", "NFLX", "AMZN")
+
+prices <- tq_get(tickers)
+```
+
+```{r}
+prices %>%
+  ggplot(aes(x = date, y = adjusted, color = symbol)) +
+  geom_line() +
+  facet_wrap(~symbol,scales = 'free_y') +
+  theme_classic() +
+  labs(x = 'Date',
+       y = "Adjusted Price",
+       title = "Price Chart") +
+  scale_x_date(date_breaks = "year",
+               date_labels = "%b\n%y")
+```
+
+
+
+
