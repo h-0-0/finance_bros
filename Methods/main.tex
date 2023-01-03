@@ -1,56 +1,57 @@
-% !TEX root = /home/jd18380/Documents/finance_bros/Methods/main.tex
-\documentclass[a4paper]{article}
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
 
-%% Language and font encodings
-\usepackage[english]{babel}
-\usepackage[utf8x]{inputenc}
 
-\usepackage{booktabs}
-\usepackage{tabu}
-\usepackage[T1]{fontenc}
-\usepackage{subfig}
-
-%% Sets page size and margins
-\usepackage[a4paper,top=2cm,bottom=3cm,left=3cm,right=3cm,marginparwidth=2.75cm]{geometry}
-%% Useful packages
-\usepackage{amsmath}
-\usepackage{amsfonts}
+% PACKAGES 
 \usepackage{amssymb}
-\usepackage{bm}
-\usepackage{xcolor}
-\DeclareMathOperator*{\argmax}{arg\!\max}
-\DeclareMathOperator*{\argmin}{arg\!\min}
-\usepackage[toc,page]{appendix}
-\usepackage{graphicx}
-%\usepackage{apacite}
-\usepackage[colorinlistoftodos]{todonotes}
-\usepackage[colorlinks=true, allcolors=blue]{hyperref}
-\usepackage{cleveref}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{bbm}
+\usepackage{array}
 
-\newtheorem{theorem}{Theorem}[section]
-\newtheorem{corollary}{Corollary}[theorem]
-\newtheorem{lemma}[theorem]{Lemma}
-\newtheorem{definition}{Definition}[section]
-\newtheorem{question}{Question}[section]
+% FORMATTING
+\setlength{\parskip}{0.7em}
+\setlength{\parindent}{0em}
+\usepackage[left = 2.5cm , right = 2.5cm, bottom = 2.7cm, top = 2.7cm]{geometry}
+\usepackage{titling}
+\usepackage{amsthm}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{proposition}{Proposition}
 
-\title{Title}
-\author{By ...}
-\date{}
+%COMMANDS
+\DeclareMathOperator*{\argmin}{argmin}
+\DeclareMathOperator*{\argmax}{argmax}
+\newcommand{\argminun}{\underset{\mathbf{w}}{\argmin}}
+\newcommand{\argmaxun}{\underset{\mathbf{w}}{\argmax}}
+\newcommand{\bxi}{\mathbf{x}_i}
+\newcommand{\bx}{\mathbf{x}}
+\newcommand{\bw}{\mathbf{w}}
+\newcommand{\bX}{\mathbf{X}}
+\newcommand{\bY}{\mathbf{Y}}
+\newcommand{\bphi}{\boldsymbol\phi}
+\newcommand*{\vertbar}{\rule[-1ex]{0.5pt}{2.5ex}}
+\newcommand*{\horzbar}{\rule[.5ex]{2.5ex}{0.5pt}}
 
+\title{\vspace{-2cm}Title}
+\author{Authors}
+\date{\vspace{-5ex}}
 \begin{document}
-\maketitle
 
+\maketitle
 
 \begin{abstract}
     In this document we will be using support vector machine (SVM) for financial time series forecasting of the value of the digital currency, Bitcoin. We will create several predicition models using SVM that will use different asset price data, which will be compared performace against each other to determine which assets are most associated to accurate predictions of Bitcoin.  
 
 \end{abstract}
 
-\input{paper_1}
-\input{appendix}
+\section{Section - Name}
 
-\small
-\bibliographystyle{plain}
-\bibliography{refs}
+
+\newpage
+\appendix
+
+\section{Appendix}
 
 \end{document}
