@@ -15,5 +15,47 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
-library(SVMForecast)
+library(e1071)
+library(tidyquant)
 ```
+
+
+# Importing BTC and NVDA stock data
+
+```{r, cache = T}
+tickers = c("BTC-USD", "ETH-USD")
+
+prices <- tq_get(tickers)
+prices_adj = prices[,c("symbol", "date", "adjusted")]
+library(tidyr)
+prices_adj_wide =
+  prices_adj %>%
+  pivot_wider(names_from = symbol, values_from = adjusted)
+```
+
+
+## Plotting data
+
+```{r, fig.width= 15}
+library(ggplot2)
+prices %>%
+  ggplot(aes(x = date, y = adjusted, color = symbol)) +
+  geom_line() +
+  facet_wrap(~symbol,scales = 'free_y') +
+  theme_classic() +
+  labs(x = 'Date',
+       y = "Adjusted Price",
+       title = "Price Chart") +
+  scale_x_date(date_breaks = "year",
+               date_labels = "%b\n%y")
+```
+
+
+```{r}
+model_svm = e1071::svm(data = prices_adj_wide, `BTC-USD` ~ `ETH-USD`)
+```
+
+```{r}
+predYsvm = predict(model_svm)
+```
+
