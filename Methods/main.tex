@@ -59,13 +59,24 @@ In this document we will be using support vector machine (SVM) for financial tim
 In this paper, we propose using support vector machine (SVM) regression to forecast the value of bitcoin using data from other cryptocurrencies and stocks. SVM regression is a powerful machine learning technique that has been successfully applied to a wide range of regression problems. By training an SVM model on a dataset of past cryptocurrency and stock values, we aim to build a model that can accurately predict the future value of bitcoin. In the following sections, we will describe the dataset and feature engineering steps taken to prepare the data for modeling, the SVM model training and evaluation process, and present the results and analysis of our forecasting approach.
 
 \section{Forecasting Methodology}
-
 We will denote our set of predictors by the matrix $\bX$, where the $i$th row is denoted by $\bx_i$, and we let $Y$ denote the vector of outcome observations. 
 
 
 \subsection{Support Vector Regression (SVR)}
+- Sam
+For Support Vector Regression (SVR) the goal is to find a function that estimates the target variable as a linear combination of the input variables, while minimizing the error between the predictions and the true values.
 
-We have 
+The optimization problem for SVM regression can be formulated as follows:
+
+minimize $1/2||w||^2 + C ∑ ξ_i$
+
+subject to $y_i - (w^T x_i + b) <= ε + ξ_i$ , for all $i = 1, ..., n$ and $ξ_i >= 0$
+
+where $w$ is the weight vector, $b$ is the bias, $C$ is a regularization parameter, $ε$ is the margin width and $ξ_i$ are the error/slack variables. The vector $xi$ and $yi$ represent the input and output variable, respectively.
+
+The goal is to find the weight vector, $w$ and bias $b$ that minimizes the objective function. To do this, a technique such as quadratic programming should be used. In addition, the constraints ensure that the difference between the predicted and true values of the target variable is at most $ε + ξ_i$ for all instances. This allows for a certain degree of error, controlled by the parameter $ε$, but penalizes larger errors through the term $C * ξ_i$.
+
+It's important to mention that in this case, the prediction is a real value instead of a class label, so it's possible to have an error term, unlike in SVM classification. The cost function is a trade-off between a margin of tolerance to errors and a regularization term that avoids overfitting. The parameter $C$ determines this trade-off. If $C$ is large, it puts more weight on the errors and tries to minimize them, while if $C$ is small it gives more importance to the regularization term which tries to keep the model simple.
 
 \citet{trafalisSVM}
 
