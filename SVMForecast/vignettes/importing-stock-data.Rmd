@@ -73,5 +73,20 @@ prices %>%
 ```
 
 
+## Importing SP500
+
+We can extract the stock tickers for the S&P 500 using `tq_index()`. The stocks are then listed in descending order with respect to their weighting in the index. 
+```{r}
+SP500 = tq_index("SP500")
+SP500_symbols = SP500$symbol
+```
+
+Can then use this to import the stock data for each of the stocks in the S&P 500. 
+
+```{r}
+SP500_prices <- tq_get(SP500_symbols, from = "2020-01-01", to = "2022-01-01")
+SP500_prices <- tq_get(SP500_symbols[1:100], from = "2020-01-01", to = "2021-01-01")
+```
+
 
 

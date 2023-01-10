@@ -1,0 +1,92 @@
+---
+title: "testing-glasso"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{testing-glasso}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, message=FALSE, warning=FALSE}
+#library(SVMForecast)
+library(tidyquant)
+library(ggplot2)
+```
+
+
+## Importing SP500
+
+We can extract the stock tickers for the S&P 500 using `tq_index()`. The stocks are then listed in descending order with respect to their weighting in the index. 
+```{r}
+SP500 = tq_index("SP500")
+SP500_symbols = SP500$symbol
+```
+
+Can then use this to import the stock data for each of the stocks in the S&P 500. 
+
+```{r}
+SP500_prices <- tq_get(SP500_symbols, from = "2020-01-01", to = "2022-01-01")
+SP500_prices <- tq_get(SP500_symbols[1:100], from = "2020-01-01", to = "2021-01-01")
+SP500_prices_adj = SP500_prices[,c("symbol", "date", "adjusted")]
+```
+
+```{r}
+library(tidyr)
+SP500_prices_adj_wide =
+  SP500_prices_adj %>%
+  pivot_wider(names_from = symbol, values_from = adjusted)
+```
+
+
+
+
+## glasso
+
+```{r}
+library(glasso)
+```
+
+```{r}
+SP500_prices_adj_wide_mat = SP500_prices_adj_wide[,-1]
+SP500_prices_adj_wide_mat = as.matrix(SP500_prices_adj_wide_mat)
+cov_mat = cov(SP500_prices_adj_wide_mat)
+```
+
+
+Running `glasso`
+
+```{r}
+glasso = glasso(cov_mat, rho = 3000)
+glasso_w = glasso$w
+```
+
+Now want to plot the network, using the precision matrix as the adjacency matrix.
+
+```{r}
+library(igraph)
+```
+
+```{r}
+diag(glasso_w) = 0
+```
+
+```{r}
+glasso_graph = graph_from_adjacency_matrix(glasso_w, mode = "undirected")
+isolated <-  which(degree(glasso_graph) == 0)
+glasso_graph <- delete.vertices(glasso_graph, isolated)
+```
+
+```{r}
+plot(glasso_graph)
+```
+
+
+
+
