@@ -133,6 +133,10 @@ where $Q_{ij} = y_{i}  y_{j}  \cdot k(x_{i}, x_{j})$
 %TODO: change equations to match previous terminology (in chapter 2.1)
 %TODO: replace --- in paragraph above
 
+We now have implemented a kernel function, however, which kernel function should we use? what will lead to the best feature space? This is not an easy question and is highly dependent on the problem and your data. However, in general it is believed the Radial Basis Function (RBF) kernel performs well. Specifically relating to working with time series data it has also been found to have good general performance on par or better than other kernel functions in a variety of scenarios \cite{ruping2001svm}, both when using SVM for classification and regression. So when using the kernel trick in our SVM we will specifically look at the RBF.
+
+%TODO: description of what RBF is and how it introduces more hyperparametrs which we will have to tune
+
 
 
 
