@@ -25,7 +25,7 @@ library(tidyquant)
 ```{r, cache = T}
 tickers = c("BTC-USD", "ETH-USD")
 
-prices <- tq_get(tickers)
+prices <- tq_get(tickers, from = "2018-01-01")
 prices_adj = prices[,c("symbol", "date", "adjusted")]
 library(tidyr)
 prices_adj_wide =
@@ -51,6 +51,12 @@ prices %>%
 ```
 
 
+## Fitting models
+
+The `e1071::svm()` function implements SVR, epsilon regression, when the outcome is not a factor. The default value of epsilon is set to 0.1. In the paper they use zero.
+
+This is using the same end of day ETH price to predict the BTC price 
+
 ```{r}
 model_svm = e1071::svm(data = prices_adj_wide, `BTC-USD` ~ `ETH-USD`)
 ```
@@ -58,4 +64,34 @@ model_svm = e1071::svm(data = prices_adj_wide, `BTC-USD` ~ `ETH-USD`)
 ```{r}
 predYsvm = predict(model_svm)
 ```
+
+Can see from plotting data against the predictions that we nee to carry out some model tuning
+```{r}
+plot(y = prices_adj_wide$`BTC-USD`, x = prices_adj_wide$`ETH-USD`)
+points(prices_adj_wide$`BTC-USD`, predYsvm, col = "red", pch=16)
+```
+
+
+### Tuning 
+
+```{r}
+tune.svm(svm, `BTC-USD` ~ `ETH-USD`, data = prices_adj_wide)
+```
+
+
+
+
+```{r}
+library(quantmod)
+library(tidyquant)
+
+getSymbols("BTC-USD", from = '2018-08-01',
+           to = "2020-12-31",warnings = FALSE,
+           auto.assign = TRUE)
+```
+
+
+
+
+
 
