@@ -124,6 +124,14 @@ It's important to mention that in this case, the prediction is a real value inst
 
 In Support Vector Machines for classification the kernel trick can be implemented when using its dual form. The analogous reformulation can be carried out with SVR, so that the kernel trick can be used.
 
+In order to fit non-linear decision boundaries we can employ whats called the kernel trick. One approach to fitting a non-linear decision boundary would be to try change the model we are fitting, ie. try and fit a non-linear model. An alternative approach and the one we will use here is to change the feature space of the data such that is is linearly separable. For example in 2D space we may have one class in the centre and another class surrounding it, the decision boundary here is a circle. With the kernel trick what we can do is add a third dimension where we might find the class in the middle takes smaller values and the class surrounding larger values, now there exists a linear decision boundary. The perk of using kernel functions here is we don't need to change our formulation of the SVM in order to fit a non-linear decision boundary. We introduce the kernel function by replacing the dot product of --- with a kernel function, k, which still computes the inner product but can do so in a much higher dimensional feature space. We can rewrite our dual representation of $\epsilon$-regression with a kernel function as follows:
+\begin{align}
+    &{} \min_{\alpha, \alpha^{*}} \quad \frac{1}{2} (\alpha - \alpha^{*})^{T} \mathbf{Q} (\alpha - \alpha^{*}) + \epsilon \sum_{i=1}^{l} (\alpha_{i} + \alpha_{i}^{*}) + \sum_{i=1}^{l} y_{i} (\alpha_{i} - \alpha_{i}^{*}) \\
+    & \text{s.t.} \quad 0 \leq \alpha_{i}, \alpha_{i}^{*} \leq C, i=1,...,l, \sum_{i=1}^{l} (\alpha_{i} - \alpha_{i}^{*}) = 0
+\end{align}
+where $Q_{ij} = y_{i}  y_{j}  \cdot k(x_{i}, x_{j})$
+%TODO: change equations to match previous terminology (in chapter 2.1)
+%TODO: replace --- in paragraph above
 
 
 
