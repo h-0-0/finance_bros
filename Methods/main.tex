@@ -70,7 +70,7 @@ $$g(\bx;\bw) = \langle \bw',\bx \rangle + w_0$$
 \subsection{Support Vector Regression (SVR)}
 For Support Vector Regression (SVR) the goal is to find a function that estimates the target variable as a linear combination of the input variables, while minimizing the error between the predictions and the true values.
 
-In standard linear regression we use the squared error loss, which can be motivated by making the probabilistic assumption that the outcome variables are normally distributed conditionally given the predictors.
+In standard linear regression the squared error loss is used, which can be motivated by making the probabilistic assumption that the outcome variables are normally distributed conditionally given the predictors.
 
 A way to view support vector regression (SVR), is by introducing the $\boldsymbol{\epsilon}$-insensitive loss function.  
 This is defined below:
@@ -95,13 +95,13 @@ This is given by:
 
 
 
-Minimising the objective function given above, can then be rewritten as a constrained optimisation problem by introducing slack variables $\xi$, $\hat{\xi}$. We also add the 
+Minimising the objective function given above, can then be rewritten as a constrained optimisation problem by introducing slack variables $\xi$, $\hat{\xi}$. Often an additional parameter $C$ is added.
 
 This is given by:
 
 
 \begin{align}
-\argmin_{\xi,\hat{\xi},\bw'} \; {\sum_{i = 1}^{n}}{(\xi_i + \hat{\xi_i})} + \frac{1}{2}||\bw'||^2 \\
+\argmin_{\xi,\hat{\xi},\bw'} \; C{\sum_{i = 1}^{n}}{(\xi_i + \hat{\xi_i})} + \frac{1}{2}||\bw'||^2 \\
 \text{s.t} \quad y_i - g(\bx_i;\bw') \leq \epsilon + \xi_i \\
 g(\bx_i;\bw') - y_i \leq \epsilon + \hat{\xi}_i \\
 \xi_i, \hat{\xi}_i \geq 0 
@@ -120,7 +120,6 @@ It's important to mention that in this case, the prediction is a real value inst
 
 \newpage
 
-\citet{trafalisSVM}
 
 \newpage
 \input{Methods/appendix.tex}
