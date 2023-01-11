@@ -72,7 +72,7 @@ For Support Vector Regression (SVR) the goal is to find a function that estimate
 
 In standard linear regression we use the squared error loss, which can be motivated by making the probabilistic assumption that the outcome variables are normally distributed conditionally given the predictors.
 
-A way to view support vector regression (SVR) is by introducing the $\boldsymbol{\epsilon}$-insensitive loss function.  
+A way to view support vector regression (SVR), is by introducing the $\boldsymbol{\epsilon}$-insensitive loss function.  
 This is defined below:
 
 \begin{align} \label{eq:binary linear classifier}
@@ -90,18 +90,21 @@ The objective function for SVR can then be defined as regularised regression, us
 This is given by:
 
 \begin{equation}
-\sum_{i = 1}^{n}{E_{\epsilon}(y_i - g(\bx_i;\bw))} + \lambda||\bw'||^2    
+\sum_{i = 1}^{n}{E_{\epsilon}(y_i - g(\bx_i;\bw))} + \frac{1}{2}||\bw'||^2    
 \end{equation}
 
 
 
-Minimising the objective function given above, can be rewritten as a constrained optimisation problem by introducing slack variables $\xi$, $\hat{\xi}$.
+Minimising the objective function given above, can then be rewritten as a constrained optimisation problem by introducing slack variables $\xi$, $\hat{\xi}$. We also add the 
 
 This is given by:
 
 
 \begin{align}
-\argmin_{\xi,\hat{\xi},\bw}{\sum_{i = 1}^{n}}{\xi_i + \hat{\xi_i}}
+\argmin_{\xi,\hat{\xi},\bw'} \; {\sum_{i = 1}^{n}}{(\xi_i + \hat{\xi_i})} + \frac{1}{2}||\bw'||^2 \\
+\text{s.t} \quad y_i - g(\bx_i;\bw') \leq \epsilon + \xi_i \\
+g(\bx_i;\bw') - y_i \leq \epsilon + \hat{\xi}_i \\
+\xi_i, \hat{\xi}_i \geq 0 
 \end{align}
 
 The optimization problem for SVM regression can be formulated as follows:
