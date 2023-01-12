@@ -22,7 +22,7 @@ fit_svm <- function(data, formula=NULL , degree=3, gamma=NULL, C=1, eps=0.1, k_c
   }
   # Set gamma to 1/(data dimension) as default
   if(is.null(gamma)){
-    dim <- length(terms(as.formula(formula))$term.labels)
+    dim <- length(attr(terms(as.formula(formula)), "term.labels"))
     gamma <- 1/dim
   }
 
