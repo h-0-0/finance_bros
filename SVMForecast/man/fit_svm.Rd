@@ -4,15 +4,23 @@
 \alias{fit_svm}
 \title{Fit model}
 \usage{
-fit_svm(
-  data,
-  formula = NULL,
-  degree = 3,
-  gamma = NULL,
-  C = 1,
-  eps = 0.1,
-  k_cross = 0
-)
+fit_svm(data, formula = NULL, gamma = NULL, C = 1, eps = 0.1, k_cross = 0)
+}
+\arguments{
+\item{data}{data.frame containing training data you want to use to fit an SVM}
+
+\item{formula}{symbolic description of model to be fit, either as a formula object or as a string, default BTC_USD~ sum of all other columns}
+
+\item{gamma}{parameter needed for radial basis kernel, default 1/(number of features in model)}
+
+\item{C}{cost of constraints violation (C constant in regularization term in Lagrange formulation), default 1}
+
+\item{eps}{epsilon in the insensitive loss function}
+
+\item{k_cross}{integer >0, defines number of folds with which to perform k-fold cross validation, default is 0 which means it doesn't carry out cross validation}
+}
+\value{
+the result of using e1071::svm(), an object of class "svm"
 }
 \description{
 Fit model

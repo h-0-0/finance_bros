@@ -7,9 +7,9 @@
 get_formulas(Cols, ind)
 }
 \arguments{
-\item{Cols:}{vector of column names}
+\item{Cols}{vector of column names}
 
-\item{ind:}{list of vectors, where each vector lists combination of columns to create formula from}
+\item{ind}{list of vectors, where each vector lists combination of columns to create formula from}
 }
 \value{
 vector of strings ready to be passed to as.formula()
