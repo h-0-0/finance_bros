@@ -23,5 +23,5 @@ fit_svm(data, formula = NULL, gamma = NULL, C = 1, eps = 0.1, k_cross = 0)
 the result of using e1071::svm(), an object of class "svm"
 }
 \description{
-Fit model
+Uses svm() from the e1071 package to fit a SVM with our specific desired parameters.
 }

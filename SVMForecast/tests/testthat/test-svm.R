@@ -1,14 +1,14 @@
 library(e1071)
 
+D <- import_stonks()
+
 test_that("fit_svm works with defaults", {
-  D <- import_stonks()
   out <- fit_svm(D)
   expect_equal(out$SV, svm(BTC_USD~ ETH_USD_1 + DOGE_USD_1, D, type="eps-regression")$SV)
 })
 
 
 test_that("fit_svm works with setting params", {
-  D <- import_stonks()
   out1 <- fit_svm(D, "BTC_USD~ DOGE_USD_1", gamma= 1, C=2, eps=0.2, k_cross=10)
   out2 <- svm(BTC_USD~ DOGE_USD_1, D, type="eps-regression", kernel="radial", gamma=1, cost=2, epsilon=0.2, cross=10)
   expect_equal(out1$formula, out2$formula)
@@ -20,4 +20,9 @@ test_that("fit_svm works with setting params", {
   expect_equal(out1$cross, out2$cross)
 
   expect_equal(out1$SV, out2$SV )
+})
+
+test_that("tune_svm works with defaults", {
+  out <- tune_svm(D)
+  expect_equal(2,2)
 })

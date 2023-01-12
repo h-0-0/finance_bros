@@ -10,6 +10,8 @@ get_formulas <- function(Cols, ind){
 }
 
 #' Fit model
+#'
+#' Uses svm() from the e1071 package to fit a SVM with our specific desired parameters.
 #'@param data data.frame containing training data you want to use to fit an SVM
 #'
 #'@param formula symbolic description of model to be fit, either as a formula object or as a string, default BTC_USD~ sum of all other columns
@@ -42,8 +44,24 @@ fit_svm <- function(data, formula=NULL , gamma=NULL, C=1, eps=0.1, k_cross=0){
   e1071::svm(formula, data, type="eps-regression", kernel="radial", gamma= gamma, cost=C, epsilon= eps, cross= k_cross)
 }
 
-# Tune
-# tune_svm <- function(){}
+#' Tune
+tune_svm <- function(data, formula=NULL, gamma_range=2^(-1:1), C_range=NULL, eps_range=0.1*(1:5)){
+  # Create formula for creating bitcoin using all columns in dataframe, as no formula given (as default)
+  if(is.null(formula)){
+    cols <- colnames(data)
+    cols <- cols[ !cols == "BTC_USD"]
+    formula <- get_formulas(cols, list(1:length(cols)))
+  }
+  if(is.null(C_range)){
+    C_range <- 2^(0:4)
+  }
+  # If formula just a string not formula changes to formula
+  if(! inherits(formula,"formula")){
+    formula <- as.formula(formula)
+  }
+  ranges <- list(type="eps-regression", kernel="radial", gamma= gamma_range, cost=C_range, epsilon= eps_range)
+  tune(svm, formula, data, ranges=ranges, tunecontrol = tune.control(sampling = "fix"))
+}
 
 # Fit tuned model
 # fit_tune_svm
@@ -52,3 +70,5 @@ fit_svm <- function(data, formula=NULL , gamma=NULL, C=1, eps=0.1, k_cross=0){
 # predict_svm <- function(){
   #predict(model_svm)
 #}
+
+#TODO: function that given data and permutations of columns runs fit_svm or tune_svm for all permutations and returns the best
