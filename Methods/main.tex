@@ -112,8 +112,11 @@ g(\bx_i;\bw') - y_i \leq \epsilon + \hat{\xi}_i \nonumber\\
 \end{align}
 
 The optimization problem for SVM regression can be formulated as follows:
-minimize $1/2||w||^2 + C \sum \xi_i$
-subject to $y_i - (w^T x_i + b) <= \epsilon + \xi_i$ , for all $i = 1, ..., n$ and $\xi_i >= 0$
+\begin{align}
+\argmin \frac{1}{2}||w||^2 + C \sum \xi_i \\
+\text{s.t} \quad y_i - (w^T x_i + b) <= \epsilon + \xi_i , \\
+\text{for all} \quad i = 1, ..., n \quad \text{and} \quad \xi_i >= 0
+\end{align}
 where $w$ is the weight vector, $b$ is the bias, $C$ is a regularization parameter, $\epsilon$ is the margin width and $\xi_i$ are the error/slack variables. The vector $x_i$ and $y_i$ represent the input and output variables, respectively.
 
 The goal is to find the weight vector, $w$ and bias $b$ that minimizes the objective function. To do this, a technique such as quadratic programming should be used. In addition, the constraints ensure that the difference between the predicted and true values of the target variable is at most $\epsilon + \xi_i$ for all instances. This allows for a certain degree of error, controlled by the parameter $\epsilon$, but penalizes larger errors through the term $C * \xi_i$.
@@ -137,11 +140,18 @@ We now have implemented a kernel function, however, which kernel function should
 
 %TODO: description of what RBF is and how it introduces more hyperparametrs which we will have to tune
 
-
-
-
 \newpage
 
+\section{Financial Forcasting Package}
+In this section, we present the methodology for using SVR to predict future stock prices within our package. Our approach involves the following steps:
+\begin{enumerate}
+  \item Data acquisition: Use the tidyquant package in R to fetch historical stock price data and format it in a way that is suitable for our analysis and perform some initial checks to ensure that the data is in good condition and useable. 
+  \item Model fitting and prediction: We use the e1071 package in R to fit an SVR model to the historical data and predict future prices. This step allows us to adjust the number of timesteps into the future we want to forecast. Additionally, we use a function to tune the hyperparameters of the model to improve its performance.
+  \item Model evaluation: We fit multiple SVR models using different variables and measures, and then evaluate the competency of each model.
+  \item Visualization: We use various plotting techniques to present the results of our analysis, including the outputs from the previous steps.
+\end{enumerate}
+
+By following these steps, the package is able to use SVR to predict future stock prices with a high degree of accuracy and provide valuable insights for investors and traders.
 
 \newpage
 \input{Methods/appendix.tex}
