@@ -12,7 +12,7 @@
 #'
 #' @examples
 #' \dontrun{
-#'   head(import_stonks(day_lag = c(1,2,3)))
+#'   head(import_stonks(stock_outcome = c("BTC-USD"), stock_pred =  c("ETH-USD", "DOGE-USD"), day_lag = c(1,2,3)))
 #' }
 import_stonks = function(stock_outcome = c("BTC-USD"), stock_pred =  c("ETH-USD", "DOGE-USD"), day_lag = c(1), from = as.Date("2018-01-02")){
 
@@ -20,13 +20,15 @@ import_stonks = function(stock_outcome = c("BTC-USD"), stock_pred =  c("ETH-USD"
   prices_out = prices_out[,c("symbol", "date", "adjusted")]
   prices_out =
     prices_out %>%
-    pivot_wider(names_from = symbol, values_from = adjusted)
+    tidyr::pivot_wider(names_from = symbol, values_from = adjusted)
+  colnames(prices_out)[colnames(prices_out) == stock_outcome] = gsub(x = stock_outcome, pattern = "-", replacement = "_")
 
-  # i = stock_pred
+
+  # i = stock_pred[1]
   stagger_stock = function(i){
     prices_pred = tidyquant::tq_get(i, from = from - max(day_lag))
     prices_pred = prices_pred[,c("symbol", "date", "adjusted")]
-    colnames(prices_pred)[3] = paste(prices_pred$symbol[1])
+    colnames(prices_pred)[3] = paste(gsub(x = prices_pred$symbol[1], pattern = "-", replacement = "_"))
     prices_pred = prices_pred[,3]
     # day_lag = c(1,2,3)
     stagger_stock = vector(length = max(day_lag), "list")
@@ -34,10 +36,10 @@ import_stonks = function(stock_outcome = c("BTC-USD"), stock_pred =  c("ETH-USD"
     for(j in day_lag){
       if((max(day_lag) -j) == 0){
         stagger_stock[[j]] = prices_pred[-c((nrow(prices_pred) - j + 1):nrow(prices_pred)),]
-        colnames(stagger_stock[[j]]) = paste0(colnames(stagger_stock[[j]]),"-",j)
+        colnames(stagger_stock[[j]]) = paste0(colnames(stagger_stock[[j]]),"_",j)
       } else {
         stagger_stock[[j]] = prices_pred[-c(1:(max(day_lag) -j),(nrow(prices_pred) - j +1):nrow(prices_pred)),]
-        colnames(stagger_stock[[j]]) = paste0(colnames(stagger_stock[[j]]),"-",j)
+        colnames(stagger_stock[[j]]) = paste0(colnames(stagger_stock[[j]]),"_",j)
       }
 
     }
@@ -50,9 +52,8 @@ import_stonks = function(stock_outcome = c("BTC-USD"), stock_pred =  c("ETH-USD"
 
   output = cbind(prices_out, dplyr::bind_cols(lapply(stock_pred,  stagger_stock)))
   rownames(output) = output$date
-  output[,-1]
 
-  return(output)
+  return(output[,-1])
 
 }
 
