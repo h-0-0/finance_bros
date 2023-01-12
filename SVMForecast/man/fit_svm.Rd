@@ -4,7 +4,15 @@
 \alias{fit_svm}
 \title{Fit model}
 \usage{
-fit_svm(formula, data, degree, gamma, coef0, C, eps, k_cross)
+fit_svm(
+  data,
+  formula = NULL,
+  degree = 3,
+  gamma = NULL,
+  C = 1,
+  eps = 0.1,
+  k_cross = 0
+)
 }
 \description{
 Fit model

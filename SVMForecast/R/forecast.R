@@ -25,9 +25,13 @@ fit_svm <- function(data, formula=NULL , degree=3, gamma=NULL, C=1, eps=0.1, k_c
     dim <- length(attr(terms(as.formula(formula)), "term.labels"))
     gamma <- 1/dim
   }
+  # If formula just a string not formula changes to formula
+  if(! inherits(formula,"formula")){
+    formula <- as.formula(formula)
+  }
 
   # Fit and return our SVM
-  e1071::svm(as.formula(formula), data, type="eps-regression", kernel="radial", degree=degree, gamma= gamma, cost=C, epsilon= eps, cross= k_cross)
+  e1071::svm(formula, data, type="eps-regression", kernel="radial", degree=degree, gamma= gamma, cost=C, epsilon= eps, cross= k_cross)
 }
 
 # Tune
