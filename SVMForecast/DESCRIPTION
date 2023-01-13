@@ -19,5 +19,6 @@ Imports:
     lubridate,
     magrittr,
     tidyquant,
-    tidyr
+    tidyr,
+    zoo
 VignetteBuilder: knitr
