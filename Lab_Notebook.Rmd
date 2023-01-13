@@ -7,7 +7,101 @@ output: pdf_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyquant)
+library(tidyr)
+library(glasso)
+library(igraph)
+library(SVMForecast)
 ```
 
 # Forecasting Bitcoin Price Using Support Vector Machines
-R markdown
+Our project looks at trying to create a short term forecasting model for Bitcoin price in USD (United States Dollar). We can roughly divide our process of trying to create such a forecasting model into three sections:   
+
+1. Selecting predictor variables.   
+2. Fit a regression model using our predictor variables.    
+3. Validate the performance of our regression model (against other models we've fitted).    
+
+The first section of this report will thus be divided into three sections explaining how we went about performing steps 1, 2 and 3. Later we will..
+#TODO: add what else we did and finish off this intro
+
+## First round of analysis
+We will start by producing a model and some graphs that will allow us to see the model we've fitted, in the next section we will then create some other models which will allow for a comparison between models in the final section.
+
+### Choosing predictor variables
+The first thing we must do before fitting a regression model is choose our predictor variables, in certain scenarios it can be fairly straight forward picking what data may be instrumental in creating a good model of your target variable. However, financial data is notoriously difficult to create models for, in part because it's not clear what exactly drives the price of any given stock, commodity or currency. Most probably its a very diverse set of variables and also probable that selection of variables and their relative importance also evolves over time. Here we will be investigating creating a model for Bitcoin price based on the price action of other assets traded on exchanges, the idea here being that price action in other assets may signal what will happen to Bitcoin price. Now the question here is how do we select which exchange traded assets to include as predictor variables in our model? as discussed in the SM1 report one way of doing this is to use a Least Absolute Shrinkage and Selection Operator (LASSO) method to select the predictor variables that are the most instrumental in creating a model for Bitcoin price. 
+
+We can extract the stock tickers for the S&P 500 using `tq_index()`. The stocks are then listed in descending order with respect to their weighting in the index. Can then use this to import the stock data for each of the stocks in the S&P 500. 
+```{r}
+#TODO: turn into import_stonks function?
+SP500 = tidyquant::tq_index("SP500")
+SP500_symbols = SP500$symbol
+
+SP500_prices <- tidyquant::tq_get(SP500_symbols, from = "2020-01-01", to = "2022-01-01")
+SP500_prices_adj = SP500_prices[,c("symbol", "date", "adjusted")]
+
+SP500_prices_adj_wide =
+  SP500_prices_adj %>%
+  tidyr::pivot_wider(names_from = symbol, values_from = adjusted)
+```
+```{r}
+SP500 <- tidyquant::tq_index("SP500")
+SP500_symbols <- SP500$symbol
+SVMForecast::import_stonks(stock_pred = SP500_symbols)
+```
+
+```{r}
+SP500_prices_adj_wide_mat = SP500_prices_adj_wide[,-1]
+SP500_prices_adj_wide_mat = as.matrix(SP500_prices_adj_wide_mat)
+cov_mat = cov(SP500_prices_adj_wide_mat)
+print(cov_mat)
+
+glasso = glasso::glasso(cov_mat, rho = 3000)
+glasso_w = glasso$w
+```
+
+Now want to plot the network, using the precision matrix as the adjacency matrix.
+```{r}
+diag(glasso_w) = 0
+
+glasso_graph = igraph::graph_from_adjacency_matrix(glasso_w, mode = "undirected")
+isolated <-  which(igraph::degree(glasso_graph) == 0)
+glasso_graph <- igraph::delete.vertices(glasso_graph, isolated)
+
+plot(glasso_graph)
+```
+
+Using glasso to choose set of predictors
+```{r}
+tickers = unique(c("BTC-USD", "ETH-USD", "BNB-USD", "USDT-USD", "ADA-USD", "DOGE-USD", "XRP-USD", "LTC-USD", "TSLA", "NVDA", "AMD", "PYPL", SP500_symbols))
+#SOL-USD
+# UNI-USD
+# DOT-USD
+
+data = tidyquant::tq_get(tickers, from = "2019-01-01")
+data = data[,c("symbol", "date", "adjusted")]
+```
+
+```{r}
+library(tidyr)
+data_wide =
+  data %>%
+  tidyr::pivot_wider(names_from = symbol, values_from = adjusted)
+```
+
+
+
+```{r}
+data_wide_mat = data_wide[,-1]
+data_wide_mat = as.matrix(data_wide_mat)
+cov_mat = cov(data_wide_mat, use = "pairwise.complete.obs")
+```
+
+```{r}
+glasso = glasso::glasso(cov_mat, rho = 3000000)
+glasso_w = glasso$w
+glasso_w_BTC = tickers[which(glasso_w != 0)]
+glasso_w_BTC = glasso_w_BTC[!is.na(glasso_w_BTC)]
+glasso_w_BTC
+```
+
