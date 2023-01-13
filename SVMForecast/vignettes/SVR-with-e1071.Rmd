@@ -132,7 +132,6 @@ points(y = data$BTC_USD, 1:nrow(data), col = "red")
 
 ```{r}
 tickers = c("BTC-USD","ETH-USD","BKNG","AZO","CMG","MTD","NVR")
-
 ```
 
 ```{r}
