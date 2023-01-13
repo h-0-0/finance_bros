@@ -44,27 +44,31 @@ fit_svm <- function(data, formula=NULL , gamma=NULL, C=1, eps=0.1, k_cross=0){
   e1071::svm(formula, data, type="eps-regression", kernel="radial", gamma= gamma, cost=C, epsilon= eps, cross= k_cross)
 }
 
-#' Tune
-tune_svm <- function(data, formula=NULL, gamma_range=2^(-1:1), C_range=NULL, eps_range=0.1*(1:5)){
+#' Tuned SVM
+#'
+#' Performs grid search on hyperparameters for SVM using cross validation to measure performance, where the SVM is based on data and formula given, and returns results. Is basically a wrapper for tune.svm() from the e1071 package
+#' @param data data.frame containing training data you want to use to fit an SVM
+#' @param formula symbolic description of model to be fit, either as a formula object or as a string, default BTC_USD~ sum of all other columns
+#' @param gamma_range range of parameters to perfrom grid search on for gamma hyperparameter needed for radial basis kernel, default is 2^(-1:1)
+#' @param C_range range of costs of constraints violation (C constant in regularization term in Lagrange formulation) to perform grid search on, default is 2^(0:4)
+#' @param eps_range range of epsilons used in the insensitive loss function to perfrom grid search on, default is 0.1*(0:5)
+#' @return the result of using e1071::tune.svm(), a tuning object including the best parameter set
+#' @export
+tune_svm <- function(data, formula=NULL, gamma_range=2^(-1:1), C_range=2^(0:4), eps_range=0.1*(0:5)){
   # Create formula for creating bitcoin using all columns in dataframe, as no formula given (as default)
   if(is.null(formula)){
     cols <- colnames(data)
     cols <- cols[ !cols == "BTC_USD"]
     formula <- get_formulas(cols, list(1:length(cols)))
   }
-  if(is.null(C_range)){
-    C_range <- 2^(0:4)
-  }
   # If formula just a string not formula changes to formula
   if(! inherits(formula,"formula")){
     formula <- as.formula(formula)
   }
-  ranges <- list(type="eps-regression", kernel="radial", gamma= gamma_range, cost=C_range, epsilon= eps_range)
-  tune(svm, formula, data, ranges=ranges, tunecontrol = tune.control(sampling = "fix"))
+
+  tune.svm(formula, data = data,  sampling = "cross", type = "eps-regression", kernel = "radial", gamma= gamma_range, cost=C_range, epsilon= eps_range)
 }
 
-# Fit tuned model
-# fit_tune_svm
 
 # Predict
 # predict_svm <- function(){

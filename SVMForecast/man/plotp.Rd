@@ -7,7 +7,7 @@
 plotp(data, ticker)
 }
 \arguments{
-\item{data}{data frame containg price action data you want to plot}
+\item{data}{data frame containing price action data you want to plot}
 
 \item{ticker}{string of the ticker you want to plot (must be one of the column names)}
 }
@@ -15,5 +15,5 @@ plotp(data, ticker)
 Returns a plot of the price of the ticker against time
 }
 \description{
-Plot price action
+Will plot price action of supplied ticker over time using data in supplied data frame.
 }
