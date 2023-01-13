@@ -114,8 +114,8 @@ g(\bx_i;\bw') - y_i \leq \epsilon + \hat{\xi}_i \nonumber\\
 The optimization problem for SVM regression can be formulated as follows:
 \begin{align}
 \argmin \frac{1}{2}||w||^2 + C \sum \xi_i \\
-\text{s.t} \quad y_i - (w^T x_i + b) <= \epsilon + \xi_i , \\
-\text{for all} \quad i = 1, ..., n \quad \text{and} \quad \xi_i >= 0
+\text{s.t} \quad y_i - (w^T x_i + b) \leq \epsilon + \xi_i , \\
+\text{for all} \quad i = 1, ..., n \quad \text{and} \quad \xi_i \geq 0
 \end{align}
 where $w$ is the weight vector, $b$ is the bias, $C$ is a regularization parameter, $\epsilon$ is the margin width and $\xi_i$ are the error/slack variables. The vector $x_i$ and $y_i$ represent the input and output variables, respectively.
 
