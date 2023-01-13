@@ -2,16 +2,30 @@
 % Please edit documentation in R/forecast.R
 \name{tune_svm}
 \alias{tune_svm}
-\title{Tune}
+\title{Tuned SVM}
 \usage{
 tune_svm(
   data,
   formula = NULL,
   gamma_range = 2^(-1:1),
-  C_range = NULL,
-  eps_range = 0.1 * (1:5)
+  C_range = 2^(0:4),
+  eps_range = 0.1 * (0:5)
 )
 }
+\arguments{
+\item{data}{data.frame containing training data you want to use to fit an SVM}
+
+\item{formula}{symbolic description of model to be fit, either as a formula object or as a string, default BTC_USD~ sum of all other columns}
+
+\item{gamma_range}{range of parameters to perfrom grid search on for gamma hyperparameter needed for radial basis kernel, default is 2^(-1:1)}
+
+\item{C_range}{range of costs of constraints violation (C constant in regularization term in Lagrange formulation) to perform grid search on, default is 2^(0:4)}
+
+\item{eps_range}{range of epsilons used in the insensitive loss function to perfrom grid search on, default is 0.1*(0:5)}
+}
+\value{
+the result of using e1071::tune.svm(), a tuning object including the best parameter set
+}
 \description{
-Tune
+Performs grid search on hyperparameters for SVM using cross validation to measure performance, where the SVM is based on data and formula given, and returns results. Is basically a wrapper for tune.svm() from the e1071 package
 }
