@@ -1,6 +1,32 @@
 \appendix
 
-\section{Appendix}
+\subsection{Derivation of the dual formulation}
+The error function for support vector regression can then be written as
+\begin{align}
+    min \quad C\sum^{N}_{n=1}(\xi_n+\hat{\xi}_n)+\frac{1}{2}||\bold{w}||^2 \\
+    s.t \quad \xi_n \geqslant 0, \hat{\xi}_n \geqslant 0
+\end{align}
+Where $C$ is the regularization parameter. By using Lagrange multipliers $a_n\geqslant0$, $a_n\geqslant0$, $\mu_n\geqslant$, and $\hat{\mu_n}\geqslant$, and optimizing the Lagrangian we can achieve the above. 
+\begin{align}
+    L=C\sum^N_{n=1}(\xi_n+\hat{\xi_n})+\frac{1}{2}||\bold{w}||^2-\sum^N_{n=1}(\mu_n\xi_n+\hat{\mu}_n\hat{\xi_n})-\sum^N_{n=1}a_n(\epsilon+\xi_n+y_n-t_n)-\sum^N_{n=1}\hat{a}_n(\epsilon+\hat{\xi}_n-y_n-t_n)
+\end{align}
+Then set the derivatives of the Lagrangian with respect to $w$, $b$, $\xi_n$, and $\hat{\xi}_n$ to zero,
+\begin{align}
+&\frac{\partial L}{\partial \bold{w}}=0 \Rightarrow \bold{w}=\sum^N_{n=1}(a_n-\hat{a}_n)\phi(x_n) \\
+&\frac{\partial L}{\partial b}=0 \Rightarrow \sum^N_{n=1}(a_n-\hat{a}_n) = 0 \\
+&\frac{\partial L}{\partial \xi_n}=0 \Rightarrow a_n + \mu_n = C \\
+&\frac{\partial L}{\partial \hat{\xi}_n}=0 \Rightarrow \hat{a}_n + \hat{\mu}_n = C
+\end{align}
+
+We can see that the dual problem involves maximizing by removing the corresponding variables from the Lagrangian using these results.
+
+\begin{align}
+\Tilde{L}(a,\hat{a})=-\frac{1}{2}\sum^N_{n=1}\sum^N_{m=1}(a_n-\hat{a}_n)(a_m-\hat{a}_m)k(\bold{x}_n,\bold{x}_m)-\epsilon\sum^N_{n=1}(a_n+\hat{a}_n)+\sum^N_{n=1}(a_n-\hat{a}_n)t_n
+\end{align}
+Where $k(\bold{x},\bold{x}')=\phi(x)^T\phi(x')$
+
+
+
 
 Extra Text
 
