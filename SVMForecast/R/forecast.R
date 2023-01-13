@@ -22,6 +22,7 @@ get_formulas <- function(Cols, ind){
 #'
 #'@return the result of using e1071::svm(), an object of class "svm"
 #'@export
+#'@importFrom e1071 svm
 #TODO: scale class weights according to amount of data? to handle missing data?
 fit_svm <- function(data, formula=NULL , gamma=NULL, C=1, eps=0.1, k_cross=0){
   # Create formula for creating bitcoin using all columns in dataframe, as no formula given (as default)
@@ -54,6 +55,7 @@ fit_svm <- function(data, formula=NULL , gamma=NULL, C=1, eps=0.1, k_cross=0){
 #' @param eps_range range of epsilons used in the insensitive loss function to perfrom grid search on, default is 0.1*(0:5)
 #' @return the result of using e1071::tune.svm(), a tuning object including the best parameter set
 #' @export
+#' @importFrom e1071 tune.svm
 tune_svm <- function(data, formula=NULL, gamma_range=2^(-1:1), C_range=2^(0:4), eps_range=0.1*(0:5)){
   # Create formula for creating bitcoin using all columns in dataframe, as no formula given (as default)
   if(is.null(formula)){
