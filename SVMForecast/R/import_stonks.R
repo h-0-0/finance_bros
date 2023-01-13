@@ -9,6 +9,9 @@
 #' @return
 #'   [`data.frame`] Containing outcome variable adjusted stock price and other Stocks selected as predictors with time lag selected by `day_lag` argument.
 #' @export
+#' @importFrom tidyquant tq_get
+#' @importFrom tidyr pivot_wider
+#' @importFrom dplyr::bind_cols
 #'
 #' @examples
 #' \dontrun{
@@ -16,17 +19,17 @@
 #' }
 import_stonks = function(stock_outcome = c("BTC-USD"), stock_pred =  c("ETH-USD", "DOGE-USD"), day_lag = c(1), from = as.Date("2018-01-02")){
 
-  prices_out = tidyquant::tq_get(stock_outcome, from = from)
+  prices_out = tq_get(stock_outcome, from = from)
   prices_out = prices_out[,c("symbol", "date", "adjusted")]
   prices_out =
     prices_out %>%
-    tidyr::pivot_wider(names_from = symbol, values_from = adjusted)
+    pivot_wider(names_from = symbol, values_from = adjusted)
   colnames(prices_out)[colnames(prices_out) == stock_outcome] = gsub(x = stock_outcome, pattern = "-", replacement = "_")
 
 
   # i = stock_pred[1]
   stagger_stock = function(i){
-    prices_pred = tidyquant::tq_get(i, from = from - max(day_lag))
+    prices_pred = tq_get(i, from = from - max(day_lag))
     prices_pred = prices_pred[,c("symbol", "date", "adjusted")]
     colnames(prices_pred)[3] = paste(gsub(x = prices_pred$symbol[1], pattern = "-", replacement = "_"))
     prices_pred = prices_pred[,3]
@@ -44,13 +47,13 @@ import_stonks = function(stock_outcome = c("BTC-USD"), stock_pred =  c("ETH-USD"
 
     }
 
-    dplyr::bind_cols(stagger_stock)
+    bind_cols(stagger_stock)
 
   }
 
 
 
-  output = cbind(prices_out, dplyr::bind_cols(lapply(stock_pred,  stagger_stock)))
+  output = cbind(prices_out, bind_cols(lapply(stock_pred,  stagger_stock)))
   rownames(output) = output$date
 
   return(output[,-1])

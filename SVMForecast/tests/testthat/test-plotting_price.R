@@ -1,5 +1,12 @@
 D <- import_stonks()
 
+test_that("long_format works", {
+  lfD <- long_format(D)
+  check <- D
+  check["Date"]  <- as.Date(rownames(check))
+  expect_equal(lfD, check)
+})
+
 test_that("plotp works", {
   png(filename = "result.png")
   plotp(D, "BTC_USD")
