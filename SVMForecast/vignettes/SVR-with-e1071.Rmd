@@ -91,19 +91,22 @@ getSymbols("BTC-USD", from = '2018-08-01',
 ```
 
 
-### Trying with `import_stonks()`
+### Using `import_stonks()`
+
+#### Trying Tuning
 
 ```{r}
 data = import_stonks()
-
-model_svm = e1071::svm(data = data, `BTC-USD` ~ .)
-
+model_svm = e1071::svm(data = data, `BTC_USD` ~ .)
 ```
 
 ```{r}
 predYsvm = predict(model_svm)
 ```
 
+```{r}
+tuneSVM = tune.svm()
+```
 
 
 
