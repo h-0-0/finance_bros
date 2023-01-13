@@ -1,0 +1,13 @@
+---
+title: "SC1 Group Project - Lab Notebook"
+author: "Henry Bourne, Sam Perren, Dylan Dijk"
+date: "2023-01-13"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Forecasting Bitcoin Price Using Support Vector Machines
+R markdown
