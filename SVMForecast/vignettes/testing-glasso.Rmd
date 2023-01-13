@@ -88,5 +88,42 @@ plot(glasso_graph)
 ```
 
 
+# Using glasso to choose set of predictors
+
+```{r}
+tickers = unique(c("BTC-USD", "ETH-USD", "BNB-USD", "USDT-USD", "ADA-USD", "DOGE-USD", "XRP-USD", "LTC-USD", "TSLA", "NVDA", "AMD", "PYPL", SP500_symbols))
+
+#SOL-USD
+# UNI-USD
+# DOT-USD
+
+data = tidyquant::tq_get(tickers, from = "2019-01-01")
+data = data[,c("symbol", "date", "adjusted")]
+```
+
+```{r}
+library(tidyr)
+data_wide =
+  data %>%
+  pivot_wider(names_from = symbol, values_from = adjusted)
+```
 
 
+
+```{r}
+data_wide_mat = data_wide[,-1]
+data_wide_mat = as.matrix(data_wide_mat)
+cov_mat = cov(data_wide_mat, use = "pairwise.complete.obs")
+```
+
+
+Running `glasso`
+
+```{r}
+library(glasso)
+glasso = glasso(cov_mat, rho = 3000000)
+glasso_w = glasso$w
+glasso_w_BTC = tickers[which(glasso_w != 0)]
+glasso_w_BTC = glasso_w_BTC[!is.na(glasso_w_BTC)]
+glasso_w_BTC
+```

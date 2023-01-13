@@ -104,9 +104,65 @@ model_svm = e1071::svm(data = data, `BTC_USD` ~ .)
 predYsvm = predict(model_svm)
 ```
 
+```{r, cache = T}
+data = import_stonks(day_lag = c(1,2,3))
+
+
+gamma_range=2^(-1:1)
+C_range=2^(0:4)
+eps_range=0.1*(0:5)
+
+tuneSVM = tune.svm(BTC_USD~., data = data,  sampling = "cross", type = "eps-regression", kernel = "radial",
+                   gamma= gamma_range, cost=C_range, epsilon= eps_range)
+
+tuneSVM$best.parameters
+tuneSVM$
+```
+
+Best parameters: gamma = 1, cost = 2, epsilon = 0.1
+
+
 ```{r}
-tuneSVM = tune.svm()
+plot(y = predict(tuneSVM$best.model), 1:nrow(data))
+points(y = data$BTC_USD, 1:nrow(data), col = "red")
 ```
 
 
+### Tuning with glasso selected stocks
 
+```{r}
+tickers = c("BTC-USD","ETH-USD","BKNG","AZO","CMG","MTD","NVR")
+
+```
+
+```{r}
+data = import_stonks(stock_pred = tickers)
+model_svm = e1071::svm(data = data, `BTC_USD` ~ .)
+```
+
+```{r}
+predYsvm = predict(model_svm)
+```
+
+```{r, cache = T}
+data = import_stonks(day_lag = c(1,2,3))
+
+
+gamma_range=2^(-1:1)
+C_range=2^(0:4)
+eps_range=0.1*(0:5)
+
+tuneSVM = tune.svm(BTC_USD~., data = data,  sampling = "cross", type = "eps-regression", kernel = "radial",
+                   gamma= gamma_range, cost=C_range, epsilon= eps_range)
+
+tuneSVM$best.parameters
+tuneSVM$
+```
+
+Best parameters: gamma = 1, cost = 2, epsilon = 0.1
+
+
+```{r}
+plot(y = predict(tuneSVM$best.model), 1:nrow(data))
+points(y = data$BTC_USD, 1:nrow(data), col = "red")
+```
