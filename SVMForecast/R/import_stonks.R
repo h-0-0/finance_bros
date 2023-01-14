@@ -11,7 +11,7 @@
 #' @export
 #' @importFrom tidyquant tq_get
 #' @importFrom tidyr pivot_wider
-#' @importFrom dplyr::bind_cols
+#' @importFrom dplyr bind_cols
 #'
 #' @examples
 #' \dontrun{

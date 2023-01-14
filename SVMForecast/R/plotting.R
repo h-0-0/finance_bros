@@ -3,10 +3,10 @@
 #' Checks if there is a column with dates, if not adds a column with dates from the row names (this is how data frames are created using import_stonks())
 #' @param df, a data frame
 #' @return a data frame with added date column (if it was missing)
-#' @import lubridate
+#' @importFrom lubridate as_date is.Date
 long_format <- function(df){
   if( ! any(unname(unlist(lapply(df[1:ncol(df)], is.Date)))) ){
-    df["Date"]  <- as.Date(rownames(df))
+    df["Date"]  <- as_date(rownames(df))
   }
   df
 }
