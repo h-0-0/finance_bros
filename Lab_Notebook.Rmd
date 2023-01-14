@@ -7,13 +7,15 @@ output: pdf_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(formatR)
+knitr::opts_chunk$set(tidy.opts = list(width.cutoff = 55), tidy = TRUE)
 
 library(tidyquant)
+library(quantmod)
 library(tidyr)
 library(glasso)
-library(igraph)
 library(SVMForecast)
-library(corrplot)
+library(e1071)
 ```
 
 # Forecasting Bitcoin Price Using Support Vector Machines
@@ -36,7 +38,7 @@ We can extract the stock tickers for the S&P 500 using `tq_index()`. The stocks 
 ```{r}
 # We load all the tickers we would like to use for analysis
 SP500 <- tidyquant::tq_index("SP500")
-SP500_symbols <- SP500$symbol[1:50]
+SP500_symbols <- SP500$symbol[1:100]
 tickers <- unique(c("BTC-USD", "ETH-USD", "BNB-USD", "USDT-USD", "ADA-USD", "DOGE-USD", "XRP-USD", "LTC-USD", "TSLA", "NVDA", "AMD", "PYPL", "DJGSP", "FENY", "DJCI", SP500_symbols))
 
 # We fetch and format the data
@@ -78,4 +80,28 @@ We will now use these tickers to form the predictor variables of our model.
 
 
 ### Fitting a regression model
+Now we have our features we can go ahead and fit a SVM regression model to our data to forecast Bitcoin price. To do this we will need to first import Bitcoin price data aswell as the price data of our predictor variables. However, in order to forecast the Bitcoin price one day ahead we will use price data lagged by one day, to get this data we will use the *import_stonks* function from our package (SVMForecast).
+```{r}
+D.1 <- SVMForecast::import_stonks(stock_outcome = c("BTC-USD"), stock_pred = btc_g_results, day_lag = c(1))
+```
+Now we have our dataset we can fit our SVM, but instead of fitting an SVM using a fixed set of hyperparameters we will use tuning. What we do is perform a grid search over hyperparmaters for the best model.
+```{r}
+M.1 <- SVMForecast::tune_svm(D.1)
+```
+We now have tuned our parameters and have fitted an SVM to our data, let's see what the performance was and the hyper-parameters that achieved this performance:
+```{r}
+M.1$best.performance
+M.1$best.parameters
+```
+The performance here was calculated using cross-validation and the MSE as the error function and we note that this number so far doesn't tell us much as we have nothing to compare it to. Later on we will be able to do a quantitative analysis by comparing performance of various models, but for now we will focus on a qualitative analysis to visualize how well our current model may be performing.
+
+### Validating performance
+Now we have a model we will check how well its performing by doing some qualitative analysis. Let's first center on a section of time series data and see how our one day ahead forecast compares with what actually happens.
+```{r}
+M.1train.ind
+```
+
+#TODO: create prediction function
+#TODO: find predictions here
+#TODO: comment and plot performance
 
