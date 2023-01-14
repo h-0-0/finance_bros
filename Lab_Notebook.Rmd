@@ -13,6 +13,7 @@ library(tidyr)
 library(glasso)
 library(igraph)
 library(SVMForecast)
+library(corrplot)
 ```
 
 # Forecasting Bitcoin Price Using Support Vector Machines
@@ -31,77 +32,50 @@ We will start by producing a model and some graphs that will allow us to see the
 ### Choosing predictor variables
 The first thing we must do before fitting a regression model is choose our predictor variables, in certain scenarios it can be fairly straight forward picking what data may be instrumental in creating a good model of your target variable. However, financial data is notoriously difficult to create models for, in part because it's not clear what exactly drives the price of any given stock, commodity or currency. Most probably its a very diverse set of variables and also probable that selection of variables and their relative importance also evolves over time. Here we will be investigating creating a model for Bitcoin price based on the price action of other assets traded on exchanges, the idea here being that price action in other assets may signal what will happen to Bitcoin price. Now the question here is how do we select which exchange traded assets to include as predictor variables in our model? as discussed in the SM1 report one way of doing this is to use a Least Absolute Shrinkage and Selection Operator (LASSO) method to select the predictor variables that are the most instrumental in creating a model for Bitcoin price. 
 
-We can extract the stock tickers for the S&P 500 using `tq_index()`. The stocks are then listed in descending order with respect to their weighting in the index. Can then use this to import the stock data for each of the stocks in the S&P 500. 
+We can extract the stock tickers for the S&P 500 using `tq_index()`. The stocks are then listed in descending order with respect to their weighting in the index. We can then use this to import the stock data for each of the stocks in the S&P 500. In addition to the S&P 500 we will look include price data from other crypto currencies, stocks of companies related to the crypto-currency space and some large indices related to precious metals, energy and commodities. 
 ```{r}
-#TODO: turn into import_stonks function?
-SP500 = tidyquant::tq_index("SP500")
-SP500_symbols = SP500$symbol
-
-SP500_prices <- tidyquant::tq_get(SP500_symbols, from = "2020-01-01", to = "2022-01-01")
-SP500_prices_adj = SP500_prices[,c("symbol", "date", "adjusted")]
-
-SP500_prices_adj_wide =
-  SP500_prices_adj %>%
-  tidyr::pivot_wider(names_from = symbol, values_from = adjusted)
-```
-```{r}
+# We load all the tickers we would like to use for analysis
 SP500 <- tidyquant::tq_index("SP500")
-SP500_symbols <- SP500$symbol
-SVMForecast::import_stonks(stock_pred = SP500_symbols)
-```
+SP500_symbols <- SP500$symbol[1:50]
+tickers <- unique(c("BTC-USD", "ETH-USD", "BNB-USD", "USDT-USD", "ADA-USD", "DOGE-USD", "XRP-USD", "LTC-USD", "TSLA", "NVDA", "AMD", "PYPL", "DJGSP", "FENY", "DJCI", SP500_symbols))
 
-```{r}
-SP500_prices_adj_wide_mat = SP500_prices_adj_wide[,-1]
-SP500_prices_adj_wide_mat = as.matrix(SP500_prices_adj_wide_mat)
-cov_mat = cov(SP500_prices_adj_wide_mat)
-print(cov_mat)
-
-glasso = glasso::glasso(cov_mat, rho = 3000)
-glasso_w = glasso$w
-```
-
-Now want to plot the network, using the precision matrix as the adjacency matrix.
-```{r}
-diag(glasso_w) = 0
-
-glasso_graph = igraph::graph_from_adjacency_matrix(glasso_w, mode = "undirected")
-isolated <-  which(igraph::degree(glasso_graph) == 0)
-glasso_graph <- igraph::delete.vertices(glasso_graph, isolated)
-
-plot(glasso_graph)
-```
-
-Using glasso to choose set of predictors
-```{r}
-tickers = unique(c("BTC-USD", "ETH-USD", "BNB-USD", "USDT-USD", "ADA-USD", "DOGE-USD", "XRP-USD", "LTC-USD", "TSLA", "NVDA", "AMD", "PYPL", SP500_symbols))
-#SOL-USD
-# UNI-USD
-# DOT-USD
-
-data = tidyquant::tq_get(tickers, from = "2019-01-01")
-data = data[,c("symbol", "date", "adjusted")]
-```
-
-```{r}
-library(tidyr)
-data_wide =
+# We fetch and format the data
+data <- tidyquant::tq_get(tickers, from = "2019-01-01")
+data <- data[,c("symbol", "date", "adjusted")]
+data <-
   data %>%
-  tidyr::pivot_wider(names_from = symbol, values_from = adjusted)
+  tidyr::pivot_wider(names_from = symbol, values_from = adjusted) # Make price coming from each ticker into dedicated column
+data <- data[,-1] # get rid of dates column
 ```
 
-
-
+Now we have imported all the data we need we can calculate the covariance matrix accounting for missing data.
 ```{r}
-data_wide_mat = data_wide[,-1]
-data_wide_mat = as.matrix(data_wide_mat)
-cov_mat = cov(data_wide_mat, use = "pairwise.complete.obs")
+data <- as.matrix(data)
+covs = cov(data, use = "pairwise.complete.obs")
 ```
-
+Now we can use *glasso* from the glasso package to use lasso techniques to estimate a sparse covariance matrix, we can plot the resulting covariance matrix:
 ```{r}
-glasso = glasso::glasso(cov_mat, rho = 3000000)
-glasso_w = glasso$w
-glasso_w_BTC = tickers[which(glasso_w != 0)]
-glasso_w_BTC = glasso_w_BTC[!is.na(glasso_w_BTC)]
-glasso_w_BTC
+g_results <- glasso::glasso(covs, rho = 300000)
+#corrplot(g_results$w, is.corr = FALSE, method="circle")
+image(g_results$w)
 ```
+From the plot we can see that due to high correlations between Bitcoin with itself and Ethereum it is hard to visualize the covariances. What we do now is set the variances to zero as we are not interested in their values and only plot whether a value is zero or one 
+```{r}
+non_zero <- g_results$w
+diag(non_zero) <- 0
+non_zero[non_zero > 0] <- 1
+non_zero[non_zero < 0] <- 1
+#corrplot(non_zero, is.corr = FALSE, method="circle")
+image(non_zero)
+```
+Here we get a more accurate picture of the magnitude of the covariance of the stocks with each other. Let's now look specifically at which stocks had a non-zero covariance with Bitcoin:
+```{r}
+btc_g_results <- tickers[which(g_results$w != 0)]
+btc_g_results <- btc_g_results[!is.na(btc_g_results)]
+btc_g_results
+```
+We will now use these tickers to form the predictor variables of our model.
+
+
+### Fitting a regression model
 
