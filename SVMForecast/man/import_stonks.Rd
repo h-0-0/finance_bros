@@ -7,7 +7,7 @@
 import_stonks(
   stock_outcome = c("BTC-USD"),
   stock_pred = c("ETH-USD", "DOGE-USD"),
-  day_lag = c(1),
+  day_lag = c(1, 2),
   from = as.Date("2018-01-02")
 )
 }

@@ -31,13 +31,13 @@ SP500_symbols = SP500$symbol
 
 Can then use this to import the stock data for each of the stocks in the S&P 500. 
 
-```{r}
+```{r, cache = T}
 SP500_prices <- tq_get(SP500_symbols, from = "2020-01-01", to = "2022-01-01")
 SP500_prices <- tq_get(SP500_symbols[1:100], from = "2020-01-01", to = "2021-01-01")
 SP500_prices_adj = SP500_prices[,c("symbol", "date", "adjusted")]
 ```
 
-```{r}
+```{r, cache = T}
 library(tidyr)
 SP500_prices_adj_wide =
   SP500_prices_adj %>%

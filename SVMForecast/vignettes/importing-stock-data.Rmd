@@ -17,6 +17,7 @@ knitr::opts_chunk$set(
 ```{r setup, message=FALSE, warning=FALSE}
 #library(SVMForecast)
 library(tidyquant)
+library(quantmod)
 library(ggplot2)
 ```
 

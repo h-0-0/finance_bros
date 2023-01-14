@@ -18,6 +18,7 @@ Imports:
     ggplot2,
     lubridate,
     magrittr,
+    quantmod,
     tidyquant,
     tidyr,
     zoo
