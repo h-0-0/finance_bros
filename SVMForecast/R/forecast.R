@@ -56,7 +56,7 @@ fit_svm <- function(data, formula=NULL , gamma=NULL, C=1, eps=0.1, k_cross=0){
 #' @return the result of using e1071::tune.svm(), a tuning object including the best parameter set
 #' @export
 #' @importFrom e1071 tune.svm
-tune_svm <- function(data, formula=NULL, gamma_range=2^(-1:1), C_range=2^(0:4), eps_range=0.1*(0:5)){
+tune_svm <- function(data, formula=NULL, gamma_range=2^(-2:2), C_range=5^(0:8), eps_range=0.01*(0:20)){
   # Create formula for creating bitcoin using all columns in dataframe, as no formula given (as default)
   if(is.null(formula)){
     cols <- colnames(data)

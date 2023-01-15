@@ -4,6 +4,7 @@
 #' @param df, a data frame
 #' @return a data frame with added date column (if it was missing)
 #' @importFrom lubridate as_date is.Date
+#' @export
 long_format <- function(df){
   if( ! any(unname(unlist(lapply(df[1:ncol(df)], is.Date)))) ){
     df["Date"]  <- as_date(rownames(df))

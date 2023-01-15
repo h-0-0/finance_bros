@@ -16,6 +16,7 @@ library(tidyr)
 library(glasso)
 library(SVMForecast)
 library(e1071)
+library(ggplot2)
 ```
 
 # Forecasting Bitcoin Price Using Support Vector Machines
@@ -86,20 +87,53 @@ D.1 <- SVMForecast::import_stonks(stock_outcome = c("BTC-USD"), stock_pred = btc
 ```
 Now we have our dataset we can fit our SVM, but instead of fitting an SVM using a fixed set of hyperparameters we will use tuning. What we do is perform a grid search over hyperparmaters for the best model.
 ```{r}
-M.1 <- SVMForecast::tune_svm(D.1)
+T.1 <- SVMForecast::tune_svm(D.1)
 ```
 We now have tuned our parameters and have fitted an SVM to our data, let's see what the performance was and the hyper-parameters that achieved this performance:
 ```{r}
-M.1$best.performance
-M.1$best.parameters
+T.1$best.performance
+T.1$best.parameters
 ```
 The performance here was calculated using cross-validation and the MSE as the error function and we note that this number so far doesn't tell us much as we have nothing to compare it to. Later on we will be able to do a quantitative analysis by comparing performance of various models, but for now we will focus on a qualitative analysis to visualize how well our current model may be performing.
+#TODO: maybe widen parameters considered in grid search? ie. change defaults
 
 ### Validating performance
-Now we have a model we will check how well its performing by doing some qualitative analysis. Let's first center on a section of time series data and see how our one day ahead forecast compares with what actually happens.
+Now we have a model we will check how well its performing by doing some qualitative analysis. Let's first center on a section of time series data and see how our one day ahead forecast compares with what actually happens. We will use the optimal hyperparameters we found during tuning and fit a model using only a portion of the data (the training data, in black on the figure below), we will then test our model on the remaining data (the testing data, in red in the figure below).
 ```{r}
-M.1train.ind
+plotp(D.1, "BTC_USD")
+#TODO: only plot part that makes up training and highlight in red area that will be reserved for testing?
 ```
+We now fit our model and find out the number of support vectors of the resulting model:
+#TODO: Fiddle with amount of training data, number to leave out and forecast ahead etc.
+```{r, warning=FALSE}
+leave_out <- 2
+train_range <- (nrow(D.1)-100) : (nrow(D.1)-leave_out)
+test_range <- (nrow(D.1)-leave_out) : nrow(D.1)
+M.1 <- fit_svm(D.1[-test_range,], gamma= T.1$best.parameters$gamma, C=T.1$best.parameters$cost, eps=T.1$best.parameters$epsilon, k_cross=10)
+summary(M.1)
+```
+The number of support vectors is large, nearly matching the number of datapoints, which in the case of SVM regression is a sign we have a model which fits the data well. Now let's plot :
+```{r}
+pr <- predict(M.1, D.1[test_range,]) 
+pr <- data.frame("BTC_USD"=pr) 
+pr <- long_format(pr) 
+pr
+```
+
+```{r}
+D.1.long <- long_format(D.1)
+plt <- ggplot(D.1.long[train_range,], aes_string(x = "Date", y = "BTC_USD")) +
+    geom_line() +
+    geom_point(data = pr, colour="red") +
+    geom_point(data = D.1.long[test_range,], colour="black") +
+    theme_classic() +
+    labs(x = 'Date',
+         y = "Adjusted Price",
+         title = paste("BTC_USD"," Price Chart") )
+print(plt)
+```
+
+
 
 #TODO: create prediction function
 #TODO: find predictions here
