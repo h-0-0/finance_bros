@@ -21,5 +21,7 @@ Imports:
     quantmod,
     tidyquant,
     tidyr,
-    zoo
+    zoo,
+    e1071,
+    dplyr
 VignetteBuilder: knitr

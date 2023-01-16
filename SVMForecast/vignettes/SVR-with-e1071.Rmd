@@ -20,6 +20,7 @@ knitr::opts_chunk$set(
 library(e1071)
 library(tidyquant)
 library(quantmod)
+library(SVMForecast)
 ```
 
 
@@ -75,24 +76,17 @@ points(prices_adj_wide$`BTC-USD`, predYsvm, col = "red", pch=16)
 ```
 
 
-### Tuning 
-
-
-
-
-
-
 ### Using `import_stonks()`
 
 #### Trying Tuning
 
 ```{r}
-data = import_stonks()
-model_svm = e1071::svm(data = data, `BTC_USD` ~ .)
+#D = import_stonks(day_lag = c(1))
+#model_svm = e1071::svm(BTC_USD ~ ETH_USD_1, data = D)
 ```
 
 ```{r}
-predYsvm = predict(model_svm)
+#predYsvm = predict(model_svm)
 ```
 
 ```{r, eval=F, cache = T}
@@ -110,44 +104,6 @@ tuneSVM$best.parameters
 ```
 
 Best parameters: gamma = 1, cost = 2, epsilon = 0.1
-
-```{r, eval = FALSE}
-plot(y = predict(tuneSVM$best.model), 1:nrow(data))
-points(y = data$BTC_USD, 1:nrow(data), col = "red")
-```
-
-
-### Tuning with glasso selected stocks
-
-```{r}
-tickers = c("BTC-USD","ETH-USD","BKNG","AZO","CMG","MTD","NVR")
-```
-
-```{r}
-data = import_stonks(stock_pred = tickers)
-model_svm = e1071::svm(data = data, `BTC_USD` ~ .)
-```
-
-```{r}
-predYsvm = predict(model_svm)
-```
-
-```{r, cache = T, eval = F}
-data = import_stonks(day_lag = c(1,2,3))
-
-
-gamma_range=2^(-1:1)
-C_range=2^(0:4)
-eps_range=0.1*(0:5)
-
-tuneSVM = tune.svm(BTC_USD~., data = data,  sampling = "cross", type = "eps-regression", kernel = "radial",
-                   gamma= gamma_range, cost=C_range, epsilon= eps_range)
-
-tuneSVM$best.parameters
-```
-
-Best parameters: gamma = 1, cost = 2, epsilon = 0.1
-
 
 ```{r, eval = FALSE}
 plot(y = predict(tuneSVM$best.model), 1:nrow(data))

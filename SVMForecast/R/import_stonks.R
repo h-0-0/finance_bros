@@ -34,7 +34,7 @@ import_stonks = function(stock_outcome = c("BTC-USD"), stock_pred =  c("ETH-USD"
     prices_pred = merge(prices_out, prices_pred, by="date", all.x = TRUE,)
     prices_pred = prices_pred[4]
     prices_pred = zoo::na.locf(prices_pred, na.rm = F)
-    # day_lag = c(1,2,3)
+    day_lag = c(1,2,3)
     stagger_stock = vector(length = max(day_lag), "list")
 
     for(j in day_lag){
