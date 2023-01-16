@@ -112,7 +112,7 @@ The performance here was calculated using cross-validation and the MSE as the er
 ## Validating performance
 Now we have a model we will check how well its performing by doing some qualitative analysis. Let's first center on a section of time series data and see how our one day ahead forecast compares with what actually happens.
 
-We will use the optimal hyperparameters we found during tuning and fit a model using only a portion of the data (the training data, in black on the figure below), we will then test our model on the remaining data (the testing data, in red in the figure below).
+We will use the optimal hyper parameters we found during tuning and fit a model using only a portion of the data (the training data, in black on the figure below), we will then test our model on the remaining data (the testing data, in red in the figure below).
 
 
 ### Plot of testing dataset
@@ -126,15 +126,22 @@ test_size <- 10
 n_partition <- 4
 tt_ind.1 <- SVMForecast::tt_ranges(D.1, test_size, n_partition)
 
-M.1 <- fit_multi(D.1, tt_ind.1, T.1)
+M.1 <- fit_multi(D.1, tt_ind.1, T.1,k_cross=0)
+```
+
+```{r, eval=FALSE}
 for(i in M.1){summary(i)}
 ```
 
 The number of support vectors is large, nearly matching the number of datapoints, which in the case of SVM regression is a sign we have a model which uses a majority of the points to fit the model. It also means the compu. Now let's find our one day ahead forecast predictions:
 ```{r}
 P.1 <- pred_multi(D.1, tt_ind.1, M.1)
+```
+
+```{r, eval=FALSE}
 for(i in P.1){print(i)}
 ```
+
 
 Let's now plot the last 50 points of our training data along with our targets and predictors:
 ```{r}
@@ -144,10 +151,12 @@ cowplot::plot_grid(plotlist = Plts.1)
 ```
 We see mixed performance here, on the plot on the left the first one day ahead forecast is very close to our target, before our forecasts being to increasingly diverge from the targets. In the plot on the left our predictions get too excited too quickly predicting much higher prices from the get go than the targets.
 
+\newpage
+
 # Playing around with features
 Now we have a working model and have visualized its performance we will now play around with the feature space and see if we can create a better model. In particular we want to add or remove features that we think may lead to better modelling. Once we've done this we will tune and fit the models before performing a qualitative analysis to asses their individual performance and a quantitative analysis to compare their performance.
 
-Including past 3 days data:
+## Including past 3 days data:
 
 ```{r, cache = T}
 D.3 <- SVMForecast::import_stonks(stock_outcome = c("BTC-USD"), stock_pred = btc_g_results, day_lag = c(1,2,3))
@@ -172,12 +181,17 @@ n_partition <- 4
 tt_ind.3 <- SVMForecast::tt_ranges(D.3, test_size, n_partition)
 
 M.3 <- fit_multi(D.3, tt_ind.3, T.3)
+```
+```{r, eval=FALSE}
 for(i in M.3){summary(i)}
 ```
 
 The number of support vectors is large, nearly matching the number of datapoints, which in the case of SVM regression is a sign we have a model which uses a majority of the points to fit the model. It also means the compu. Now let's find our one day ahead forecast predictions:
 ```{r}
 P.3 <- pred_multi(D.3, tt_ind.3, M.3)
+```
+
+```{r, eval = FALSE}
 for(i in P.3){print(i)}
 ```
 
@@ -188,23 +202,70 @@ for (i in 1:2) {Plts.3[[i]] <- plotf(D.3, tt_ind.3[[i]]$train, tt_ind.3[[i]]$tes
 cowplot::plot_grid(plotlist = Plts.3) 
 ```
 
+\newpage
 
-## Selecting features
-We will start by selecting the sets of tickers we would like to use to compose our new feature spaces. 
-#TODO: formulate subsets of tickers that you are going to use to fit svm's, with reasoning
-  # Using multiple lags?
-  # Volume?
-  # Getting rid of weird tickers
-  
+## using crypto currency prices
 
-### Fitting models
-#TODO: fit svms using tuning
+Will try running a model using a set of cryptocurrencies stocks.
 
-### Qualative analysis
-#TODO: plot qualative analysis
+```{r}
+stock_preds = c("BTC-USD", "ETH-USD", "BNB-USD", "USDT-USD", "ADA-USD", "DOGE-USD", "XRP-USD", "LTC-USD", "TSLA", "NVDA", "AMD")
+```
+
+Bitcoin price data aswell as the price data of our predictor variables. However, in order to forecast the Bitcoin price one day ahead we will use price data lagged by one day, to get this data we will use the `import_stonks()` function from our package (SVMForecast).
+```{r, cache = T}
+D.c <- SVMForecast::import_stonks(stock_outcome = c("BTC-USD"), stock_pred = stock_preds, day_lag = c(1,2,3))
+```
+Now we have our dataset we can fit our SVM, but instead of fitting an SVM using a fixed set of hyperparameters we will use tuning. What we do is perform a grid search over hyperparmaters for the best model.
+```{r, cache = T}
+T.c <- SVMForecast::tune_svm(D.c)
+```
+We now have tuned our parameters and have fitted an SVM to our data, let's see what the performance was and the hyper-parameters that achieved this performance:
+```{r}
+T.c$best.performance
+T.c$best.parameters
+```
+The performance here was calculated using cross-validation and the MSE as again.
+
+
+### Plot of testing dataset
+```{r}
+plotp(D.c, "BTC_USD")
+```
+
+We now fit our model and find out the number of support vectors of the resulting model:
+```{r, warning=FALSE}
+test_size <- 10
+n_partition <- 4
+tt_ind.c <- SVMForecast::tt_ranges(D.c, test_size, n_partition)
+
+M.c <- fit_multi(D.c, tt_ind.c, T.c,k_cross=0)
+```
+
+```{r, eval=FALSE}
+for(i in M.c){summary(i)}
+```
+
+The number of support vectors is large, nearly matching the number of datapoints, which in the case of SVM regression is a sign we have a model which uses a majority of the points to fit the model. It also means the compu. Now let's find our one day ahead forecast predictions:
+```{r}
+P.c <- pred_multi(D.c, tt_ind.c, M.c)
+```
+
+```{r, eval=FALSE}
+for(i in P.c){print(i)}
+```
+
+
+Let's now plot the last 50 points of our training data along with our targets and predictors:
+```{r}
+Plts.c <- list()
+for (i in 1:2) {Plts.c[[i]] <- plotf(D.c, tt_ind.c[[i]]$train, tt_ind.c[[i]]$test, P.c[[i]], restrict_train = 50) }
+cowplot::plot_grid(plotlist = Plts.c) 
+```
+
+
 
 ### A Comparison 
-#TODO: perform quantative analysis comparing performance between them
 
 
 
