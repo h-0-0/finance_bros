@@ -125,9 +125,15 @@ cowplot::plot_grid(plotlist = Plts.1)
 We see mixed performance here, on the plot on the left the first one day ahead forecast is very close to our target, before our forecasts being to increasingly diverge from the targets. In the plot on the left our predictions get too excited too quickly predicting much higher prices from the get go than the targets.
 
 ## Playing around with features
+Now we have a working model and have visualized its performance we will now play around with the feature space and see if we can create a better model. In particular we want to add or remove features that we think may lead to better modelling. Once we've done this we will tune and fit the models before performing a qualitative analysis to asses their individual performance and a quantitative analysis to compare their performance.
 
 ### Selecting features
+We will start by selecting the sets of tickers we would like to use to compose our new feature spaces. 
 #TODO: formulate subsets of tickers that you are going to use to fit svm's, with reasoning
+  # Using multiple lags?
+  # Volume?
+  # Getting rid of weird tickers
+  
 
 ### Fitting models
 #TODO: fit svms using tuning
