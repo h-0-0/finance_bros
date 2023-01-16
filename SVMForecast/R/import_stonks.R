@@ -24,7 +24,7 @@ import_stonks = function(stock_outcome = c("BTC-USD"), stock_pred =  c("ETH-USD"
   prices_out = prices_out[,c("symbol", "date", "adjusted")]
   prices_out =
     prices_out %>%
-    pivot_wider(names_from = symbol, values_from = adjusted)
+    pivot_wider(names_from = "symbol", values_from = "adjusted")
   colnames(prices_out)[colnames(prices_out) == stock_outcome] = gsub(x = stock_outcome, pattern = "-", replacement = "_")
 
   stagger_stock = function(i){
