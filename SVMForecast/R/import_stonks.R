@@ -14,6 +14,8 @@
 #' @importFrom tidyr pivot_wider
 #' @importFrom dplyr bind_cols
 #'
+#'
+#'
 #' @examples
 #' \dontrun{
 #'   head(import_stonks(stock_outcome = c("BTC-USD"), stock_pred =  c("ETH-USD", "DOGE-USD"), day_lag = c(1,2,3)))
