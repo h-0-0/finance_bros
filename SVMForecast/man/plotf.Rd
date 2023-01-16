@@ -4,7 +4,7 @@
 \alias{plotf}
 \title{Plot forecasting}
 \usage{
-plotf(data, train_range, test_range, preds)
+plotf(data, train_range, test_range, preds, restrict_train = NULL)
 }
 \arguments{
 \item{data}{data frame containing price action data you want to plot}

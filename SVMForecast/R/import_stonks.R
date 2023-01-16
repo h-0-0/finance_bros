@@ -1,6 +1,7 @@
 
-#' import_stonks
+#' Import lagged stock data
 #'
+#' Given tickers for price data we want to predict and use as predictor variables returns dataframe where each ticker has a column and each row is labelled with the date, the prices are the adjusted day prices. Can also import data with different number of lags.
 #' @param stock_outcome Character. Outcome variable we will try to predict. Default: "BTC-USD"
 #' @param stock_pred Character Vector. Stock prices we will use as predictors
 #' @param day_lag Numeric Vector. The day lags of the predictors we want in dataset.
@@ -19,14 +20,6 @@
 #' }
 import_stonks = function(stock_outcome = c("BTC-USD"), stock_pred =  c("ETH-USD", "DOGE-USD"), day_lag = c(1,2), from = as.Date("2018-01-02")){
 
-  # allign_fun =function(x){
-  #   vv = tq_get(x, from = from - max(day_lag), to = from - max(day_lag))
-  # }
-  # while (any(is.na(unlist(lapply(stock_pred, allign_fun))))) {
-  #   from = from + 1
-  #   print(from)
-  # }
-
   prices_out = tq_get(stock_outcome, from = from - max(day_lag))
   prices_out = prices_out[,c("symbol", "date", "adjusted")]
   prices_out =
@@ -34,9 +27,6 @@ import_stonks = function(stock_outcome = c("BTC-USD"), stock_pred =  c("ETH-USD"
     pivot_wider(names_from = symbol, values_from = adjusted)
   colnames(prices_out)[colnames(prices_out) == stock_outcome] = gsub(x = stock_outcome, pattern = "-", replacement = "_")
 
-
-  # i = stock_pred[1]
-  # i = stock_pred[3]
   stagger_stock = function(i){
     prices_pred = tq_get(i, from = from - max(day_lag))
     prices_pred = prices_pred[,c("symbol", "date", "adjusted")]
