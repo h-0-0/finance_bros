@@ -2,7 +2,10 @@
 title: "SC1 Group Project - Lab Notebook"
 author: "Henry Bourne, Sam Perren, Dylan Dijk"
 date: "2023-01-13"
-output: pdf_document
+output: 
+  pdf_document:
+    toc: true
+    toc_depth: 3
 ---
 
 ```{r setup, include=FALSE}
@@ -20,74 +23,78 @@ library(ggplot2)
 library(cowplot)
 ```
 
-```{r}
+```{r, inlcude=FALSE, echo=FALSE, message=FALSE}
 devtools::load_all(path = "SVMForecast/")
 ```
 
+\vspace{2cm}
 
 # Forecasting Bitcoin Price Using Support Vector Machines
 Our project looks at trying to create a short term forecasting model for Bitcoin price in USD (United States Dollar). We can roughly divide our process of trying to create such a forecasting model into three sections:   
 
 1. Selecting predictor variables.   
-2. Fit a regression model using our predictor variables.    
+2. Fit a support vector regression (SVR) model using our predictor variables.    
 3. Validate the performance of our regression model (against other models we've fitted).    
 
 In this report we describe how we carried out each section, and provide the code alongside that produced our results. 
 
-## First round of analysis
+\newpage
+
+# First round of analysis
 We will start by producing a model and some graphs that will allow us to see the model we've fitted, in the next section we will then create some other models which will allow for a comparison between models in the final section.
 
-### Choosing predictor variables
-The first thing we must do before fitting a regression model is choose our predictor variables, in certain scenarios it can be fairly straight forward picking what data may be instrumental in creating a good model of your target variable. However, financial data is notoriously difficult to create models for, in part because it's not clear what exactly drives the price of any given stock, commodity or currency. Most probably its a very diverse set of variables and also probable that selection of variables and their relative importance also evolves over time. Here we will be investigating creating a model for Bitcoin price based on the price action of other assets traded on exchanges, the idea here being that price action in other assets may signal what will happen to Bitcoin price. Now the question here is how do we select which exchange traded assets to include as predictor variables in our model? as discussed in the SM1 report one way of doing this is to use a Least Absolute Shrinkage and Selection Operator (LASSO) method to select the predictor variables that are the most instrumental in creating a model for Bitcoin price. 
+## Choosing predictor variables
+The first thing we must do before fitting a regression model is choose our predictor variables, in certain scenarios it can be fairly straight forward picking what data may be instrumental in creating a good model of your target variable. However, financial data is notoriously difficult to create models for, in part because it's not clear what exactly drives the price of any given stock, commodity or currency. Most probably its a very diverse set of variables and also probable that selection of variables and their relative importance also evolves over time. Here we will be investigating creating a model for Bitcoin price based on the price action of other assets traded on exchanges, the idea here being that price action in other assets may signal what will happen to Bitcoin price.
+
+Now the question here is how do we select which exchange traded assets to include as predictor variables in our model? as discussed in the SM1 report one way of doing this is to use the `glasso` package to select the predictor variables that are the most instrumental in creating a model for Bitcoin price. 
 
 We can extract the stock tickers for the S&P 500 using `tq_index()`. The stocks are then listed in descending order with respect to their weighting in the index. We can then use this to import the stock data for each of the stocks in the S&P 500. In addition to the S&P 500 we will look include price data from other crypto currencies, stocks of companies related to the crypto-currency space and some large indices related to precious metals, energy and commodities. 
+
+### Loading S&P 500 stock data and additional Cryptocurrencies
+
+
+
 ```{r, warning=FALSE, cache=TRUE}
-# We load all the tickers we would like to use for analysis
 SP500 <- tidyquant::tq_index("SP500")
 SP500_symbols <- SP500$symbol
 tickers <- unique(c("BTC-USD", "ETH-USD", "BNB-USD", "USDT-USD", "ADA-USD", "DOGE-USD", "XRP-USD", "LTC-USD", "TSLA", "NVDA", "AMD", "PYPL", SP500_symbols))
-
-
-# We fetch and format the data
 data_full <- tidyquant::tq_get(tickers, from = "2019-01-01")
+```
+
+Formatting the dataset.
+```{r, warning=FALSE, cache=TRUE}
 data <- data_full[,c("symbol", "date", "adjusted")]
 data <-
   data %>%
-  tidyr::pivot_wider(names_from = symbol, values_from = adjusted) # Make price coming from each ticker into dedicated column
-data <- data[,-1] # get rid of dates column
+  tidyr::pivot_wider(names_from = symbol, values_from = adjusted) 
+data <- data[,-1] 
 ```
 
+### Using `glasso()` to select predictors
+
 Now we have imported all the data we need we can calculate the covariance matrix accounting for missing data.
-```{r}
+```{r, cache = TRUE}
 data <- as.matrix(data)
 covs = cov(data, use = "pairwise.complete.obs")
 ```
 
-Now we can use *glasso* from the glasso package to use lasso techniques to estimate a sparse covariance matrix, we can plot the resulting covariance matrix:
-```{r}
+Now we can use the `glasso()` function from the `glasso` package to use lasso techniques to estimate a sparse covariance matrix, we can plot the resulting precision matrix:
+```{r, cache = TRUE}
 g_results <- glasso::glasso(covs, rho = 3000000)
-#corrplot(g_results$w, is.corr = FALSE, method="circle")
-image(g_results$w)
 ```
-From the plot we can see that due to high correlations between Bitcoin with itself and Ethereum it is hard to visualize the covariances. What we do now is set the variances to zero as we are not interested in their values and only plot whether a value is zero or one 
-```{r}
-non_zero <- g_results$w
-diag(non_zero) <- 0
-non_zero[non_zero > 0] <- 1
-non_zero[non_zero < 0] <- 1
-#corrplot(non_zero, is.corr = FALSE, method="circle")
-image(non_zero)
-```
-Here we get a more accurate picture of the magnitude of the covariance of the stocks with each other. Let's now look specifically at which stocks had a non-zero covariance with Bitcoin:
+
+Let's now look at which stocks had a non-zero covariance with Bitcoin:
 ```{r}
 btc_g_results <- tickers[which(g_results$w != 0)]
 btc_g_results <- btc_g_results[!is.na(btc_g_results)]
 btc_g_results
 ```
+
 We will now use these tickers to form the predictor variables of our model.
 
-### Fitting a regression model
-Now we have our features we can go ahead and fit a SVM regression model to our data to forecast Bitcoin price. To do this we will need to first import Bitcoin price data aswell as the price data of our predictor variables. However, in order to forecast the Bitcoin price one day ahead we will use price data lagged by one day, to get this data we will use the *import_stonks* function from our package (SVMForecast).
+## Fitting a SVR model
+
+Now we have our features we can go ahead and fit a SVM regression model to our data to forecast Bitcoin price. To do this we will need to first import Bitcoin price data aswell as the price data of our predictor variables. However, in order to forecast the Bitcoin price one day ahead we will use price data lagged by one day, to get this data we will use the `import_stonks()` function from our package (SVMForecast).
 ```{r, cache = T}
 D.1 <- SVMForecast::import_stonks(stock_outcome = c("BTC-USD"), stock_pred = btc_g_results, day_lag = c(1))
 ```
@@ -102,11 +109,17 @@ T.1$best.parameters
 ```
 The performance here was calculated using cross-validation and the MSE as the error function and we note that this number so far doesn't tell us much as we have nothing to compare it to. Later on we will be able to do a quantitative analysis by comparing performance of various models, but for now we will focus on a qualitative analysis to visualize how well our current model may be performing.
 
-### Validating performance
-Now we have a model we will check how well its performing by doing some qualitative analysis. Let's first center on a section of time series data and see how our one day ahead forecast compares with what actually happens. We will use the optimal hyperparameters we found during tuning and fit a model using only a portion of the data (the training data, in black on the figure below), we will then test our model on the remaining data (the testing data, in red in the figure below).
+## Validating performance
+Now we have a model we will check how well its performing by doing some qualitative analysis. Let's first center on a section of time series data and see how our one day ahead forecast compares with what actually happens.
+
+We will use the optimal hyperparameters we found during tuning and fit a model using only a portion of the data (the training data, in black on the figure below), we will then test our model on the remaining data (the testing data, in red in the figure below).
+
+
+### Plot of testing dataset
 ```{r}
 plotp(D.1, "BTC_USD")
 ```
+
 We now fit our model and find out the number of support vectors of the resulting model:
 ```{r, warning=FALSE}
 test_size <- 10
@@ -131,7 +144,7 @@ cowplot::plot_grid(plotlist = Plts.1)
 ```
 We see mixed performance here, on the plot on the left the first one day ahead forecast is very close to our target, before our forecasts being to increasingly diverge from the targets. In the plot on the left our predictions get too excited too quickly predicting much higher prices from the get go than the targets.
 
-## Playing around with features
+# Playing around with features
 Now we have a working model and have visualized its performance we will now play around with the feature space and see if we can create a better model. In particular we want to add or remove features that we think may lead to better modelling. Once we've done this we will tune and fit the models before performing a qualitative analysis to asses their individual performance and a quantitative analysis to compare their performance.
 
 Including past 3 days data:
@@ -176,7 +189,7 @@ cowplot::plot_grid(plotlist = Plts.3)
 ```
 
 
-### Selecting features
+## Selecting features
 We will start by selecting the sets of tickers we would like to use to compose our new feature spaces. 
 #TODO: formulate subsets of tickers that you are going to use to fit svm's, with reasoning
   # Using multiple lags?
