@@ -17,6 +17,7 @@ library(glasso)
 library(SVMForecast)
 library(e1071)
 library(ggplot2)
+library(cowplot)
 ```
 
 # Forecasting Bitcoin Price Using Support Vector Machines
@@ -58,7 +59,7 @@ covs = cov(data, use = "pairwise.complete.obs")
 ```
 Now we can use *glasso* from the glasso package to use lasso techniques to estimate a sparse covariance matrix, we can plot the resulting covariance matrix:
 ```{r}
-g_results <- glasso::glasso(covs, rho = 300000)
+g_results <- glasso::glasso(covs, rho = 900000)
 #corrplot(g_results$w, is.corr = FALSE, method="circle")
 image(g_results$w)
 ```
@@ -101,41 +102,51 @@ The performance here was calculated using cross-validation and the MSE as the er
 Now we have a model we will check how well its performing by doing some qualitative analysis. Let's first center on a section of time series data and see how our one day ahead forecast compares with what actually happens. We will use the optimal hyperparameters we found during tuning and fit a model using only a portion of the data (the training data, in black on the figure below), we will then test our model on the remaining data (the testing data, in red in the figure below).
 ```{r}
 plotp(D.1, "BTC_USD")
-#TODO: only plot part that makes up training and highlight in red area that will be reserved for testing?
 ```
 We now fit our model and find out the number of support vectors of the resulting model:
 #TODO: Fiddle with amount of training data, number to leave out and forecast ahead etc.
 ```{r, warning=FALSE}
-leave_out <- 2
-train_range <- (nrow(D.1)-100) : (nrow(D.1)-leave_out)
-test_range <- (nrow(D.1)-leave_out) : nrow(D.1)
-M.1 <- fit_svm(D.1[-test_range,], gamma= T.1$best.parameters$gamma, C=T.1$best.parameters$cost, eps=T.1$best.parameters$epsilon, k_cross=10)
-summary(M.1)
+test_size <- 10
+n_partition <- 3
+tt_ind.1 <- SVMForecast::tt_ranges(D.1, test_size, n_partition)
+
+#M.1.1 <- fit_svm(D.1.tt[1]$train, gamma= T.1$best.parameters$gamma, C=T.1$best.parameters$cost, eps=T.1$best.parameters$epsilon, k_cross=10)
+#summary(M.1)
+M.1 <- fit_multi(D.1, tt_ind.1, T.1)
+for(i in M.1){summary(i)}
 ```
-The number of support vectors is large, nearly matching the number of datapoints, which in the case of SVM regression is a sign we have a model which fits the data well. Now let's plot :
+The number of support vectors is large, nearly matching the number of datapoints, which in the case of SVM regression is a sign we have a model which fits the data well. Now let's find our one day ahead forecast predictions:
 ```{r}
-pr <- predict(M.1, D.1[test_range,]) 
-pr <- data.frame("BTC_USD"=pr) 
-pr <- long_format(pr) 
-pr
+#pr <- SVMForecast::predict_svm(M.1, D.1[test_range,])
+P.1 <- pred_multi(D.1, tt_ind.1, M.1)
+for(i in P.1){print(i)}
 ```
 
 ```{r}
-D.1.long <- long_format(D.1)
-plt <- ggplot(D.1.long[train_range,], aes_string(x = "Date", y = "BTC_USD")) +
-    geom_line() +
-    geom_point(data = pr, colour="red") +
-    geom_point(data = D.1.long[test_range,], colour="black") +
-    theme_classic() +
-    labs(x = 'Date',
-         y = "Adjusted Price",
-         title = paste("BTC_USD"," Price Chart") )
-print(plt)
+#plt <- plotf(D.1, tt_ind.1[[1]]$train, tt_ind.1[[1]]$test, P.1[[1]])
+Plts.1 <- list()
+for (i in 1:length(tt_ind.1)) {Plts.1[[i]] <- plotf(D.1, tt_ind.1[[i]]$train, tt_ind.1[[i]]$test, P.1[[i]]) }
+cowplot::plot_grid(plotlist = Plts.1) 
 ```
 
 
+#TODO: generate test and training range
+#TODO: predict and return in desired format
+#TODO: plot training data and predicted and target points
 
-#TODO: create prediction function
-#TODO: find predictions here
-#TODO: comment and plot performance
+## Playing around with features
+
+### Selecting features
+#TODO: formulate subsets of tickers that you are going to use to fit svm's, with reasoning
+
+### Fitting models
+#TODO: fit svms using tuning
+
+### Qualative analysis
+#TODO: plot qualative analysis
+
+### A Comparison 
+#TODO: perform quantative analysis comparing performance between them
+
+
 
