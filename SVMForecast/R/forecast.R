@@ -96,14 +96,23 @@ predict_svm <- function(model, predictors, long = TRUE){
 #' @param data a data frame which you want to create test and training indices for
 #' @param testing the number of datapoints you want to reserve for testing for each testing, training pair
 #' @param n_tt the number of testing and training sets you want to produce
+#' @param training number of samples to use for training, default is NULL where all available samples (not assigned to testing) in section are used
 #' @return a list of testing and training sets, where each element is a list containing a test and train list with the testing and training row indices respectfully
 #' @export
-tt_ranges <- function(data, testing, n_tt){
+tt_ranges <- function(data, testing, n_tt, training = NULL){
   sections <- split(1:nrow(data), sort(rep_len(1:n_tt, nrow(data))))
   ranges <- list()
-  for (i in 1:n_tt) {
-    inds <- sections[[i]]
-    ranges[[i]] <- list(train = inds[1:(length(inds)-testing)], test = inds[(length(inds)-testing +1) : length(inds)] )
+  if(is.null(training)){
+    for (i in 1:n_tt) {
+      inds <- sections[[i]]
+      ranges[[i]] <- list(train = inds[1:(length(inds)-testing)], test = inds[(length(inds)-testing +1) : length(inds)] )
+    }
+  }
+  else{
+    for (i in 1:n_tt) {
+      inds <- sections[[i]]
+      ranges[[i]] <- list(train = inds[(length(inds)-testing -training):(length(inds)-testing)], test = inds[(length(inds)-testing +1) : length(inds)] )
+    }
   }
   ranges
 }

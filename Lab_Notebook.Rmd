@@ -96,7 +96,6 @@ T.1$best.performance
 T.1$best.parameters
 ```
 The performance here was calculated using cross-validation and the MSE as the error function and we note that this number so far doesn't tell us much as we have nothing to compare it to. Later on we will be able to do a quantitative analysis by comparing performance of various models, but for now we will focus on a qualitative analysis to visualize how well our current model may be performing.
-#TODO: maybe widen parameters considered in grid search? ie. change defaults
 
 ### Validating performance
 Now we have a model we will check how well its performing by doing some qualitative analysis. Let's first center on a section of time series data and see how our one day ahead forecast compares with what actually happens. We will use the optimal hyperparameters we found during tuning and fit a model using only a portion of the data (the training data, in black on the figure below), we will then test our model on the remaining data (the testing data, in red in the figure below).
@@ -104,35 +103,26 @@ Now we have a model we will check how well its performing by doing some qualitat
 plotp(D.1, "BTC_USD")
 ```
 We now fit our model and find out the number of support vectors of the resulting model:
-#TODO: Fiddle with amount of training data, number to leave out and forecast ahead etc.
 ```{r, warning=FALSE}
 test_size <- 10
-n_partition <- 3
+n_partition <- 4
 tt_ind.1 <- SVMForecast::tt_ranges(D.1, test_size, n_partition)
 
-#M.1.1 <- fit_svm(D.1.tt[1]$train, gamma= T.1$best.parameters$gamma, C=T.1$best.parameters$cost, eps=T.1$best.parameters$epsilon, k_cross=10)
-#summary(M.1)
 M.1 <- fit_multi(D.1, tt_ind.1, T.1)
 for(i in M.1){summary(i)}
 ```
 The number of support vectors is large, nearly matching the number of datapoints, which in the case of SVM regression is a sign we have a model which fits the data well. Now let's find our one day ahead forecast predictions:
 ```{r}
-#pr <- SVMForecast::predict_svm(M.1, D.1[test_range,])
 P.1 <- pred_multi(D.1, tt_ind.1, M.1)
 for(i in P.1){print(i)}
 ```
-
+Let's now plot the last 50 points of our training data along with our targets and predictors:
 ```{r}
-#plt <- plotf(D.1, tt_ind.1[[1]]$train, tt_ind.1[[1]]$test, P.1[[1]])
 Plts.1 <- list()
-for (i in 1:length(tt_ind.1)) {Plts.1[[i]] <- plotf(D.1, tt_ind.1[[i]]$train, tt_ind.1[[i]]$test, P.1[[i]]) }
+for (i in 1:2) {Plts.1[[i]] <- plotf(D.1, tt_ind.1[[i]]$train, tt_ind.1[[i]]$test, P.1[[i]], restrict_train = 50) }
 cowplot::plot_grid(plotlist = Plts.1) 
 ```
-
-
-#TODO: generate test and training range
-#TODO: predict and return in desired format
-#TODO: plot training data and predicted and target points
+We see mixed performance here, on the plot on the left the first one day ahead forecast is very close to our target, before our forecasts being to increasingly diverge from the targets. In the plot on the left our predictions get too excited too quickly predicting much higher prices from the get go than the targets.
 
 ## Playing around with features
 
