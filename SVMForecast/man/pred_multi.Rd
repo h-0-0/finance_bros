@@ -10,6 +10,8 @@ pred_multi(data, tt_inds, svms)
 \item{data}{a data frame containing the data}
 
 \item{tt_inds}{a vector of lists containing test and train indices (from tt_ranges())}
+
+\item{svms}{a list of svm objects (from fit_multi or just a list of results from fit_svm)}
 }
 \value{
 a list of objects of class svm from fit_svm each trained on a portion of the training data

@@ -141,6 +141,7 @@ fit_multi <- function(data, tt_inds, tuning, k_cross=10){
 #' Given data and a list of training and testing indices (from tt_ranges()) and an svm object (from fit_svm()) will return predictions for testing data using their respective svm object
 #' @param data a data frame containing the data
 #' @param tt_inds a vector of lists containing test and train indices (from tt_ranges())
+#' @param svms a list of svm objects (from fit_multi or just a list of results from fit_svm)
 #' @return a list of objects of class svm from fit_svm each trained on a portion of the training data
 #' @export
 pred_multi <- function(data, tt_inds, svms){
