@@ -1,4 +1,4 @@
-D <- SVMForecast::import_stonks()
+D <- SVMForecast::import_stonks(day_lag = c(1))
 
 test_that("long_format works", {
   lfD <- long_format(D)

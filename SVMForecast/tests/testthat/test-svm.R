@@ -1,6 +1,6 @@
 library(e1071)
 
-D <- SVMForecast::import_stonks()
+D <- SVMForecast::import_stonks(day_lag = c(1))
 
 test_that("fit_svm works with defaults", {
   out <- fit_svm(D)
