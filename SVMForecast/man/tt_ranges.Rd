@@ -4,7 +4,7 @@
 \alias{tt_ranges}
 \title{Training and Testing data}
 \usage{
-tt_ranges(data, testing, n_tt)
+tt_ranges(data, testing, n_tt, training = NULL)
 }
 \arguments{
 \item{data}{a data frame which you want to create test and training indices for}
@@ -12,6 +12,8 @@ tt_ranges(data, testing, n_tt)
 \item{testing}{the number of datapoints you want to reserve for testing for each testing, training pair}
 
 \item{n_tt}{the number of testing and training sets you want to produce}
+
+\item{training}{number of samples to use for training, default is NULL where all available samples (not assigned to testing) in section are used}
 }
 \value{
 a list of testing and training sets, where each element is a list containing a test and train list with the testing and training row indices respectfully

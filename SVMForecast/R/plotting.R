@@ -44,7 +44,10 @@ plotp <- function(data, ticker){
 #' @return Returns a plot
 #' @export
 #' @import ggplot2
-plotf <- function(data, train_range, test_range, preds){
+plotf <- function(data, train_range, test_range, preds, restrict_train = NULL){
+  if(! is.null(restrict_train)){
+    train_range <- train_range[(length(train_range)-restrict_train) : length(train_range)]
+  }
   data.long <- long_format(data)
   plt <- ggplot(data.long[train_range,], aes_string(x = "Date", y = "BTC_USD")) +
     geom_line() +
