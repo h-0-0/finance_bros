@@ -33,12 +33,12 @@ fit_svm <- function(data, formula=NULL , gamma=NULL, C=1, eps=0.1, k_cross=0){
   }
   # Set gamma to 1/(data dimension) as default
   if(is.null(gamma)){
-    dim <- length(attr(terms(as.formula(formula)), "term.labels"))
+    dim <- length(attr(stats::terms(stats::as.formula(formula)), "term.labels"))
     gamma <- 1/dim
   }
   # If formula just a string not formula changes to formula
   if(! inherits(formula,"formula")){
-    formula <- as.formula(formula)
+    formula <- stats::as.formula(formula)
   }
 
   # Fit and return our SVM
@@ -65,7 +65,7 @@ tune_svm <- function(data, formula=NULL, gamma_range=2^(-3:0), C_range=2^(0:4), 
   }
   # If formula just a string not formula changes to formula
   if(! inherits(formula,"formula")){
-    formula <- as.formula(formula)
+    formula <- stats::as.formula(formula)
   }
 
   tune.svm(formula, data = data,  sampling = "cross", type = "eps-regression", kernel = "radial", gamma= gamma_range, cost=C_range, epsilon= eps_range)

@@ -41,6 +41,8 @@ plotp <- function(data, ticker){
 #' @param data data frame containing price action data you want to plot
 #' @param train_range row indices used in training of SVM
 #' @param test_range row indices used for testing of SVM
+#' @param preds predictions
+#' @param restrict_train integer saying how many testing samples we want, defult is NULL where all avliable are used
 #' @return Returns a plot
 #' @export
 #' @import ggplot2

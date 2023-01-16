@@ -12,6 +12,10 @@ plotf(data, train_range, test_range, preds, restrict_train = NULL)
 \item{train_range}{row indices used in training of SVM}
 
 \item{test_range}{row indices used for testing of SVM}
+
+\item{preds}{predictions}
+
+\item{restrict_train}{integer saying how many testing samples we want, defult is NULL where all avliable are used}
 }
 \value{
 Returns a plot
