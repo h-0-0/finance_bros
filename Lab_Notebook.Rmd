@@ -16,6 +16,8 @@ library(tidyr)
 library(glasso)
 library(SVMForecast)
 library(e1071)
+library(ggplot2)
+library(cowplot)
 ```
 
 # Forecasting Bitcoin Price Using Support Vector Machines
@@ -57,7 +59,7 @@ covs = cov(data, use = "pairwise.complete.obs")
 ```
 Now we can use *glasso* from the glasso package to use lasso techniques to estimate a sparse covariance matrix, we can plot the resulting covariance matrix:
 ```{r}
-g_results <- glasso::glasso(covs, rho = 300000)
+g_results <- glasso::glasso(covs, rho = 900000)
 #corrplot(g_results$w, is.corr = FALSE, method="circle")
 image(g_results$w)
 ```
@@ -86,22 +88,65 @@ D.1 <- SVMForecast::import_stonks(stock_outcome = c("BTC-USD"), stock_pred = btc
 ```
 Now we have our dataset we can fit our SVM, but instead of fitting an SVM using a fixed set of hyperparameters we will use tuning. What we do is perform a grid search over hyperparmaters for the best model.
 ```{r}
-M.1 <- SVMForecast::tune_svm(D.1)
+T.1 <- SVMForecast::tune_svm(D.1)
 ```
 We now have tuned our parameters and have fitted an SVM to our data, let's see what the performance was and the hyper-parameters that achieved this performance:
 ```{r}
-M.1$best.performance
-M.1$best.parameters
+T.1$best.performance
+T.1$best.parameters
 ```
 The performance here was calculated using cross-validation and the MSE as the error function and we note that this number so far doesn't tell us much as we have nothing to compare it to. Later on we will be able to do a quantitative analysis by comparing performance of various models, but for now we will focus on a qualitative analysis to visualize how well our current model may be performing.
+#TODO: maybe widen parameters considered in grid search? ie. change defaults
 
 ### Validating performance
-Now we have a model we will check how well its performing by doing some qualitative analysis. Let's first center on a section of time series data and see how our one day ahead forecast compares with what actually happens.
+Now we have a model we will check how well its performing by doing some qualitative analysis. Let's first center on a section of time series data and see how our one day ahead forecast compares with what actually happens. We will use the optimal hyperparameters we found during tuning and fit a model using only a portion of the data (the training data, in black on the figure below), we will then test our model on the remaining data (the testing data, in red in the figure below).
 ```{r}
-M.1train.ind
+plotp(D.1, "BTC_USD")
+```
+We now fit our model and find out the number of support vectors of the resulting model:
+#TODO: Fiddle with amount of training data, number to leave out and forecast ahead etc.
+```{r, warning=FALSE}
+test_size <- 10
+n_partition <- 3
+tt_ind.1 <- SVMForecast::tt_ranges(D.1, test_size, n_partition)
+
+#M.1.1 <- fit_svm(D.1.tt[1]$train, gamma= T.1$best.parameters$gamma, C=T.1$best.parameters$cost, eps=T.1$best.parameters$epsilon, k_cross=10)
+#summary(M.1)
+M.1 <- fit_multi(D.1, tt_ind.1, T.1)
+for(i in M.1){summary(i)}
+```
+The number of support vectors is large, nearly matching the number of datapoints, which in the case of SVM regression is a sign we have a model which fits the data well. Now let's find our one day ahead forecast predictions:
+```{r}
+#pr <- SVMForecast::predict_svm(M.1, D.1[test_range,])
+P.1 <- pred_multi(D.1, tt_ind.1, M.1)
+for(i in P.1){print(i)}
 ```
 
-#TODO: create prediction function
-#TODO: find predictions here
-#TODO: comment and plot performance
+```{r}
+#plt <- plotf(D.1, tt_ind.1[[1]]$train, tt_ind.1[[1]]$test, P.1[[1]])
+Plts.1 <- list()
+for (i in 1:length(tt_ind.1)) {Plts.1[[i]] <- plotf(D.1, tt_ind.1[[i]]$train, tt_ind.1[[i]]$test, P.1[[i]]) }
+cowplot::plot_grid(plotlist = Plts.1) 
+```
+
+
+#TODO: generate test and training range
+#TODO: predict and return in desired format
+#TODO: plot training data and predicted and target points
+
+## Playing around with features
+
+### Selecting features
+#TODO: formulate subsets of tickers that you are going to use to fit svm's, with reasoning
+
+### Fitting models
+#TODO: fit svms using tuning
+
+### Qualative analysis
+#TODO: plot qualative analysis
+
+### A Comparison 
+#TODO: perform quantative analysis comparing performance between them
+
+
 

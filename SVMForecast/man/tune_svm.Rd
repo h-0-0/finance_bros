@@ -7,9 +7,9 @@
 tune_svm(
   data,
   formula = NULL,
-  gamma_range = 2^(-1:1),
+  gamma_range = 2^(-3:0),
   C_range = 2^(0:4),
-  eps_range = 0.1 * (0:5)
+  eps_range = 0.01 * (0:5)
 )
 }
 \arguments{
