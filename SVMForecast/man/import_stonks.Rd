@@ -2,7 +2,7 @@
 % Please edit documentation in R/import_stonks.R
 \name{import_stonks}
 \alias{import_stonks}
-\title{import_stonks}
+\title{Import lagged stock data}
 \usage{
 import_stonks(
   stock_outcome = c("BTC-USD"),
@@ -24,7 +24,7 @@ import_stonks(
 [`data.frame`] Containing outcome variable adjusted stock price and other Stocks selected as predictors with time lag selected by `day_lag` argument.
 }
 \description{
-import_stonks
+Given tickers for price data we want to predict and use as predictor variables returns dataframe where each ticker has a column and each row is labelled with the date, the prices are the adjusted day prices. Can also import data with different number of lags.
 }
 \examples{
 \dontrun{
