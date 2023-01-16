@@ -1,6 +1,6 @@
 library(e1071)
 
-D <- import_stonks()
+D <- SVMForecast::import_stonks()
 
 test_that("fit_svm works with defaults", {
   out <- fit_svm(D)

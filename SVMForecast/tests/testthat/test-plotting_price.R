@@ -1,4 +1,4 @@
-D <- import_stonks()
+D <- SVMForecast::import_stonks()
 
 test_that("long_format works", {
   lfD <- long_format(D)
