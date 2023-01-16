@@ -56,7 +56,7 @@ fit_svm <- function(data, formula=NULL , gamma=NULL, C=1, eps=0.1, k_cross=0){
 #' @return the result of using e1071::tune.svm(), a tuning object including the best parameter set
 #' @export
 #' @importFrom e1071 tune.svm
-tune_svm <- function(data, formula=NULL, gamma_range=2^(-2:2), C_range=5^(0:8), eps_range=0.01*(0:20)){
+tune_svm <- function(data, formula=NULL, gamma_range=2^(-3:0), C_range=2^(0:4), eps_range=0.01*(0:5)){
   # Create formula for creating bitcoin using all columns in dataframe, as no formula given (as default)
   if(is.null(formula)){
     cols <- colnames(data)
@@ -71,10 +71,73 @@ tune_svm <- function(data, formula=NULL, gamma_range=2^(-2:2), C_range=5^(0:8), 
   tune.svm(formula, data = data,  sampling = "cross", type = "eps-regression", kernel = "radial", gamma= gamma_range, cost=C_range, epsilon= eps_range)
 }
 
+#' Prediction
+#'
+#' A wrapper for the prediction() function from the e1071 package. Calculates prediction then returns it in our desired format (a data.frame)
+#' @param model result from fit_svm, ie. object of class "svm"
+#' @param predictors data frame containing data points for which we want predictions
+#' @param long Boolean indicating if we want to pass the data frame to long_format before returning
+#' @return Data frame containing predictions
+#' @export
+#' @import e1071
+predict_svm <- function(model, predictors, long = TRUE){
+  out <- predict(model, predictors)
+  out <- data.frame("BTC_USD" =out)
+  if(long){
+    out <- long_format(out)
+  }
+  out
+}
 
-# Predict
-# predict_svm <- function(){
-  #predict(model_svm)
-#}
 
-#TODO: function that given data and permutations of columns runs fit_svm or tune_svm for all permutations and returns the best
+#' Training and Testing data
+#'
+#' Assigns ranges of row indices for multiple testing and training sets based on arguments given. Note that this simply partitions the datset so all the indices are sequential.
+#' @param data a data frame which you want to create test and training indices for
+#' @param testing the number of datapoints you want to reserve for testing for each testing, training pair
+#' @param n_tt the number of testing and training sets you want to produce
+#' @return a list of testing and training sets, where each element is a list containing a test and train list with the testing and training row indices respectfully
+#' @export
+tt_ranges <- function(data, testing, n_tt){
+  sections <- split(1:nrow(data), sort(rep_len(1:n_tt, nrow(data))))
+  ranges <- list()
+  for (i in 1:n_tt) {
+    inds <- sections[[i]]
+    ranges[[i]] <- list(train = inds[1:(length(inds)-testing)], test = inds[(length(inds)-testing +1) : length(inds)] )
+  }
+  ranges
+}
+
+#' Fit multiple SVM's
+#'
+#' Given data and a list of training and testing indices (from tt_ranges()) and a tuning object (from tune_svm()) will fit a SVM model to each testing set and return the resulting list of outputs
+#' @param data a data frame containing the data
+#' @param tt_inds a vector of lists containing test and train indices (from tt_ranges())
+#' @param tuning a tuning object (from tune_svm())
+#' @param k_cross number of folds for cross validation, default is 10
+#' @return a list of objects of class svm from fit_svm each trained on a portion of the training data
+#' @export
+fit_multi <- function(data, tt_inds, tuning, k_cross=10){
+  out <- vector("list", length(tt_inds))
+  for(i in 1:length(tt_inds)){
+    out[[i]] <- fit_svm(data[tt_inds[[i]]$train,] , gamma= tuning$best.parameters$gamma, C=tuning$best.parameters$cost, eps=tuning$best.parameters$epsilon, k_cross=k_cross)
+    print(out[[i]])
+  }
+  out
+}
+
+
+#' Predict using multiple SVM's
+#'
+#' Given data and a list of training and testing indices (from tt_ranges()) and an svm object (from fit_svm()) will return predictions for testing data using their respective svm object
+#' @param data a data frame containing the data
+#' @param tt_inds a vector of lists containing test and train indices (from tt_ranges())
+#' @return a list of objects of class svm from fit_svm each trained on a portion of the training data
+#' @export
+pred_multi <- function(data, tt_inds, svms){
+  out <- list()
+  for(i in 1:length(tt_inds)){
+    out[[i]] <- predict_svm(svms[[i]], data[tt_inds[[i]]$test,])
+  }
+  out
+}

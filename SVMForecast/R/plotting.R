@@ -34,3 +34,24 @@ plotp <- function(data, ticker){
          title = paste(ticker," Price Chart") )
   return(plt)
 }
+
+#' Plot forecasting
+#'
+#' Will plot price action of BTC_USD for testing data (as a line), along with testing data (as black points) and the predictions (red dots).
+#' @param data data frame containing price action data you want to plot
+#' @param train_range row indices used in training of SVM
+#' @param test_range row indices used for testing of SVM
+#' @return Returns a plot
+#' @export
+#' @import ggplot2
+plotf <- function(data, train_range, test_range, preds){
+  data.long <- long_format(data)
+  plt <- ggplot(data.long[train_range,], aes_string(x = "Date", y = "BTC_USD")) +
+    geom_line() +
+    geom_point(data = preds, colour="red") +
+    geom_point(data = data.long[test_range,], colour="black") +
+    theme_classic() +
+    labs(x = 'Date',
+         y = "Adjusted Price",
+         title = "BTC_USD Forecasting" )
+}
