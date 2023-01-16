@@ -25,20 +25,19 @@ library(ggplot2)
 ## Importing SP500
 
 We can extract the stock tickers for the S&P 500 using `tq_index()`. The stocks are then listed in descending order with respect to their weighting in the index. 
-```{r}
+```{r, eval=FALSE}
 SP500 = tq_index("SP500")
 SP500_symbols = SP500$symbol
 ```
 
 Can then use this to import the stock data for each of the stocks in the S&P 500. 
 
-```{r, cache = T}
-SP500_prices <- tq_get(SP500_symbols, from = "2020-01-01", to = "2022-01-01")
-SP500_prices <- tq_get(SP500_symbols[1:100], from = "2020-01-01", to = "2021-01-01")
+```{r, cache = T, eval=FALSE}
+SP500_prices <- tq_get(SP500_symbols[1], from = "2020-01-01", to = "2021-01-01")
 SP500_prices_adj = SP500_prices[,c("symbol", "date", "adjusted")]
 ```
 
-```{r, cache = T}
+```{r, cache = T, eval=FALSE}
 library(tidyr)
 SP500_prices_adj_wide =
   SP500_prices_adj %>%
@@ -50,11 +49,11 @@ SP500_prices_adj_wide =
 
 ## glasso
 
-```{r}
+```{r,eval=FALSE}
 library(glasso)
 ```
 
-```{r}
+```{r,eval=FALSE}
 SP500_prices_adj_wide_mat = SP500_prices_adj_wide[,-1]
 SP500_prices_adj_wide_mat = as.matrix(SP500_prices_adj_wide_mat)
 cov_mat = cov(SP500_prices_adj_wide_mat)
@@ -63,35 +62,35 @@ cov_mat = cov(SP500_prices_adj_wide_mat)
 
 Running `glasso`
 
-```{r}
+```{r,eval=FALSE}
 glasso = glasso(cov_mat, rho = 3000)
 glasso_w = glasso$w
 ```
 
 Now want to plot the network, using the precision matrix as the adjacency matrix.
 
-```{r}
+```{r,eval=FALSE}
 library(igraph)
 ```
 
-```{r}
+```{r,eval=FALSE}
 diag(glasso_w) = 0
 ```
 
-```{r}
+```{r,eval=FALSE}
 glasso_graph = graph_from_adjacency_matrix(glasso_w, mode = "undirected")
 isolated <-  which(degree(glasso_graph) == 0)
 glasso_graph <- delete.vertices(glasso_graph, isolated)
 ```
 
-```{r}
+```{r,eval=FALSE}
 plot(glasso_graph)
 ```
 
 
 # Using glasso to choose set of predictors
 
-```{r}
+```{r,eval=FALSE}
 tickers = unique(c("BTC-USD", "ETH-USD", "BNB-USD", "USDT-USD", "ADA-USD", "DOGE-USD", "XRP-USD", "LTC-USD", "TSLA", "NVDA", "AMD", "PYPL", SP500_symbols))
 
 #SOL-USD
@@ -102,7 +101,7 @@ data = tidyquant::tq_get(tickers, from = "2019-01-01")
 data = data[,c("symbol", "date", "adjusted")]
 ```
 
-```{r}
+```{r,eval=FALSE}
 library(tidyr)
 data_wide =
   data %>%
@@ -110,7 +109,7 @@ data_wide =
 ```
 
 
-```{r}
+```{r,eval=FALSE}
 data_wide_mat = data_wide[,-1]
 data_wide_mat = as.matrix(data_wide_mat)
 cov_mat = cov(data_wide_mat, use = "pairwise.complete.obs")
@@ -119,7 +118,7 @@ cov_mat = cov(data_wide_mat, use = "pairwise.complete.obs")
 
 Running `glasso`
 
-```{r}
+```{r,eval=FALSE}
 library(glasso)
 glasso = glasso(cov_mat, rho = 3000000)
 glasso_w = glasso$w
@@ -127,9 +126,3 @@ glasso_w_BTC = tickers[which(glasso_w != 0)]
 glasso_w_BTC = glasso_w_BTC[!is.na(glasso_w_BTC)]
 glasso_w_BTC
 ```
-
-```{r, eval = FALSE}
-
-```
-
-
