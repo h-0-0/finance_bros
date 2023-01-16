@@ -16,6 +16,7 @@ knitr::opts_chunk$set(
 
 ```{r setup, message=FALSE, warning=FALSE}
 #library(SVMForecast)
+library(quantmod)
 library(tidyquant)
 library(ggplot2)
 ```
@@ -109,7 +110,6 @@ data_wide =
 ```
 
 
-
 ```{r}
 data_wide_mat = data_wide[,-1]
 data_wide_mat = as.matrix(data_wide_mat)
@@ -127,3 +127,9 @@ glasso_w_BTC = tickers[which(glasso_w != 0)]
 glasso_w_BTC = glasso_w_BTC[!is.na(glasso_w_BTC)]
 glasso_w_BTC
 ```
+
+```{r, eval = FALSE}
+
+```
+
+

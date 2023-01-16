@@ -52,7 +52,10 @@ plotf <- function(data, train_range, test_range, preds, restrict_train = NULL){
   plt <- ggplot(data.long[train_range,], aes_string(x = "Date", y = "BTC_USD")) +
     geom_line() +
     geom_point(data = preds, colour="red") +
+    geom_line(data = preds, colour="red") +
     geom_point(data = data.long[test_range,], colour="black") +
+    geom_line(data = data.long[test_range,], colour="black") +
+
     theme_classic() +
     labs(x = 'Date',
          y = "Adjusted Price",
