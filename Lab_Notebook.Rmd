@@ -41,7 +41,7 @@ In this report we describe how we carried out each section, and provide the code
 \newpage
 
 # Note on the SVMForecast package
-To help in this analysis we use many functions from the SVMForecast package that we created. It contains many helpful functions for pulling stock data and fitting, tuning and plotting SVM's. The package is fully documented and largely tested and can be viewed at github: "github.com/h-aze/finance_bros" under the SVMForecast directory.  
+To help in this analysis we use many functions from the SVMForecast package that we created. It contains many helpful functions for pulling stock data and fitting, tuning and plotting SVM's. The package is fully documented and largely tested and can be viewed at github: "github.com/h-aze/finance_bros" under the SVMForecast directory. We also added github actions that run an R CMD check and check test coverage, their badges can be seen at the repositorys read me file.
 
 # First round of analysis
 We will start by producing a model and some graphs that will allow us to see the model we've fitted, in the next section we will then create some other models which will allow for a comparison between models in the final section.
